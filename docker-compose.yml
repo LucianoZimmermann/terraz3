@@ -1,0 +1,44 @@
+services:
+  terraz-backend:
+    build:
+      context: ./backend
+    container_name: backend-terraz
+    ports:
+      - "8080:8080"
+    networks:
+      - terraz-network
+    depends_on:
+      - postgres
+
+  frontend-terraz:
+    build:
+      context: ./frontend
+    container_name: frontend-terraz
+    ports:
+      - "3000:3000"
+    depends_on:
+      - terraz-backend
+    networks:
+      - terraz-network
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-terraz
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: terraz
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - terraz-network
+
+networks:
+  terraz-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
