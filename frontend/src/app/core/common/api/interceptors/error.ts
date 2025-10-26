@@ -1,5 +1,5 @@
 import type { AxiosError, AxiosInstance } from "axios";
-import type { AppError } from "../../types/AppError";
+import type { AppError } from "../types/AppError";
 
 function toAppError(err: AxiosError): AppError {
   const status = err.response?.status;

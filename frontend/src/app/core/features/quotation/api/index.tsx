@@ -1,4 +1,4 @@
-import { get, post, put, del } from "../../../api/request.ts";
+import { get, post, put, del } from "../../../common/api/request.ts";
 import {
   Quote,
   QuoteCreateDTO,
@@ -8,8 +8,10 @@ import {
 
 const BASE_URL = "/quotes";
 
-export const listQuotes = (params?: QuoteListParams) =>
-  get<Quote[]>(BASE_URL, { params });
+export const listQuotes = (
+  params?: QuoteListParams,
+  cfg?: { signal?: AbortSignal },
+) => get<Quote[]>(BASE_URL, { params, signal: cfg?.signal });
 
 export const getQuote = (id: number | string) =>
   get<Quote>(`${BASE_URL}/${id}`);

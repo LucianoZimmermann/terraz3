@@ -1,13 +1,13 @@
 // src/app/pages/tracts/hooks.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { qk } from "../../query/keys";
-import { listTracts, createTract } from "../../api/tracts";
+import { qk } from "../../common/query/keys";
+import { listTracts, createTract } from "../../common/api/tracts";
 import type {
   Tract,
   TractCreateDTO,
   TractListParams,
-} from "../../api/tracts/types";
-import type { AppError } from "../../types/AppError";
+} from "../../common/api/tracts/types";
+import type { AppError } from "../../common/api/types/AppError";
 
 export const useTracts = (params?: TractListParams) =>
   useQuery<Tract[], AppError>({

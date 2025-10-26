@@ -1,9 +1,7 @@
-import { TopBar } from "./layout/TopBar.tsx";
-
 export default function App() {
   return (
     <>
-      <TopBar />
+      <div>Hello, Terraz3!</div>
     </>
   );
 }

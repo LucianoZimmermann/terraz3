@@ -1,4 +1,4 @@
-import { put, del, get, post } from "../../../api/request";
+import { put, del, get, post } from "../../../common/api/request";
 import {
   FactorType,
   FactorTypeCreateDTO,

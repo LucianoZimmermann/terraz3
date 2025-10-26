@@ -1,4 +1,4 @@
-import { get, post, put, del } from "../../../api/request.ts";
+import { get, post, put, del } from "../../../common/api/request.ts";
 import {
   Tract,
   TractCreateDTO,
@@ -8,8 +8,10 @@ import {
 
 const BASE_URL = "/tracts";
 
-export const listTracts = (params?: TractListParams) =>
-  get<Tract[]>(BASE_URL, { params });
+export const listTracts = (
+  params?: TractListParams,
+  cfg?: { signal?: AbortSignal },
+) => get<Tract[]>(BASE_URL, { params, signal: cfg?.signal });
 
 export const getTract = (id: number | string) =>
   get<Tract>(`${BASE_URL}/${id}`);

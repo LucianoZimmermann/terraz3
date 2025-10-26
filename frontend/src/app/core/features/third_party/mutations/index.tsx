@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ThirdParty, ThirdPartyCreateDTO } from "../types";
 import { AppError } from "../../../common/api/types/AppError";
-import { createTractOwner } from "../api";
-import { TractOwner, TractOwnerCreateDTO } from "../types";
+import { createThirdParty } from "../api";
 import { keys } from "../queries";
 
-export const useCreateTractOwner = () => {
+export const useCreateThirdParty = () => {
   const qc = useQueryClient();
-  return useMutation<TractOwner, AppError, TractOwnerCreateDTO>({
-    mutationFn: createTractOwner,
+  return useMutation<ThirdParty, AppError, ThirdPartyCreateDTO>({
+    mutationFn: createThirdParty,
     onSuccess: () => qc.invalidateQueries({ queryKey: keys.all }),
   });
 };

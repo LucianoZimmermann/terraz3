@@ -1,4 +1,4 @@
-import { get, post, put, del } from "../../../api/request.ts";
+import { get, post, put, del } from "../../../common/api/request.ts";
 import {
   Neighborhood,
   NeighborhoodCreateDTO,

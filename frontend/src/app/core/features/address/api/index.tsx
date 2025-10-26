@@ -4,7 +4,7 @@ import {
   AddressListParams,
   AddressUpdateDTO,
 } from "../types/index.tsx";
-import { get, post, put, del } from "../../../api/request.ts";
+import { get, post, put, del } from "../../../common/api/request.ts";
 
 const BASE_URL = "/addresses";
 

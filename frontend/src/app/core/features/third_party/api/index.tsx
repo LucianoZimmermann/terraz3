@@ -1,4 +1,4 @@
-import { get, post, put, del } from "../../../api/request.ts";
+import { get, post, put, del } from "../../../common/api/request.ts";
 import {
   ThirdParty,
   ThirdPartyCreateDTO,
@@ -7,8 +7,10 @@ import {
 } from "../types/index.tsx";
 const BASE_URL = "/third-parties";
 
-export const listThirdParties = (params?: ThirdPartyListParams) =>
-  get<ThirdParty[]>(BASE_URL, { params });
+export const listThirdParties = (
+  params?: ThirdPartyListParams,
+  cfg?: { signal?: AbortSignal },
+) => get<ThirdParty[]>(BASE_URL, { params, signal: cfg?.signal });
 
 export const getThirdParty = (id: number | string) =>
   get<ThirdParty>(`${BASE_URL}/${id}`);

@@ -1,4 +1,3 @@
-// src/core/api/interceptors/auth.ts
 import type { AxiosInstance } from "axios";
 import { getToken } from "../config";
 
