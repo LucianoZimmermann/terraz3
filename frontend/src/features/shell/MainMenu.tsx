@@ -1,4 +1,3 @@
-// src/features/shell/Shell.tsx
 import { useState } from "react";
 import {
   Box,
@@ -21,6 +20,7 @@ import LocationCityIcon from "@mui/icons-material/LocationCity";
 import HandshakeIcon from "@mui/icons-material/Handshake";
 import LandscapeIcon from "@mui/icons-material/Landscape";
 import PersonIcon from "@mui/icons-material/Person";
+import { useNavigate } from "@tanstack/react-router";
 
 const DRAWER_W = 240;
 const MINI_W = 72;
@@ -44,19 +44,21 @@ export function Shell({
 }) {
   const [open, setOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   return (
     <Box sx={{ display: "flex" }}>
       <AppBar
         position="fixed"
         variant="glass"
-        sx={{ zIndex: (t) => t.zIndex.drawer + 1 }}
+        sx={{ zIndex: (t) => t.zIndex.drawer + 1, color: "text.primary" }}
       >
         <Toolbar>
           <IconButton
             edge="start"
-            color="inherit"
             onClick={() => setOpen((v) => !v)}
             aria-label="menu"
+            sx={{ color: "text.primary" }}
           >
             <MenuIcon />
           </IconButton>
@@ -65,11 +67,10 @@ export function Shell({
             Terraz
           </Typography>
 
-          {/* Toggle de tema no canto direito */}
           <IconButton
-            color="inherit"
             aria-label="alternar tema"
             onClick={onToggleTheme}
+            sx={{ color: "text.primary" }}
           >
             {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
           </IconButton>
@@ -97,7 +98,7 @@ export function Shell({
             <ListItemButton
               key={it.label}
               onClick={() => {
-                /* navigate(it.to) */
+                navigate({ to: it.to });
               }}
             >
               <ListItemIcon sx={{ minWidth: 40 }}>{it.icon}</ListItemIcon>

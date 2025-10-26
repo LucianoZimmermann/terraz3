@@ -60,8 +60,4 @@ public class FactorService {
   public Double calculateFactorsTotalPrice(List<FactorDTO> factorDTOs) {
     return factorDTOs.stream().mapToDouble(dto -> dto.getLaborCost() + dto.getMaterialCost()).sum();
   }
-
-  //  public List<FactorTypeEnum> getAllFactorsTypes(){
-  //    return factorRepository.
-  //  }
 }

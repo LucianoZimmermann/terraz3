@@ -1,4 +1,3 @@
-// src/app/providers/query-provider.tsx
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "../../common/query/client";
