@@ -1,15 +1,27 @@
-import { StrictMode } from "react";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
-import { QueryProvider } from "./core/common/providers/query-provider.tsx";
-import { MUIProvider } from "./core/common/providers/theme-provider.tsx";
+import App from "./App";
+import { QueryProvider } from "./providers/query-provider";
+import { MUIProvider } from "./providers/theme-provider";
+
+function Root() {
+  const [mode, setMode] = useState<"dark" | "light">("dark");
+  return (
+    <QueryProvider>
+      <MUIProvider mode={mode}>
+        <App
+          mode={mode}
+          onToggleTheme={() =>
+            setMode((m) => (m === "dark" ? "light" : "dark"))
+          }
+        />
+      </MUIProvider>
+    </QueryProvider>
+  );
+}
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryProvider>
-      <MUIProvider>
-        <App />
-      </MUIProvider>
-    </QueryProvider>
+    <Root />
   </StrictMode>,
 );

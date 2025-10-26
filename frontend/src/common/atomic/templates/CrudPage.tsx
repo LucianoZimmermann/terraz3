@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Stack, Typography } from "@mui/material";
-import { PrimaryButton } from "../atoms/PrimaryButton";
+import { PrimaryButton } from "../atoms/buttons/Button";
 import { DataTable, Column } from "../organisms/DataTable";
 import { CrudDialog } from "../organisms/CrudDialog";
 
