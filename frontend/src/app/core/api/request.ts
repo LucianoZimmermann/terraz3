@@ -9,10 +9,12 @@ export async function get<T>(url: string, cfg?: Cfg): Promise<T> {
   const { data } = await http.get<T>(url, cfg);
   return data;
 }
+
 export async function del<T>(url: string, cfg?: Cfg): Promise<T> {
   const { data } = await http.delete<T>(url, cfg);
   return data;
 }
+
 export async function post<T, B = unknown>(
   url: string,
   body: B,
@@ -21,6 +23,7 @@ export async function post<T, B = unknown>(
   const { data } = await http.post<T>(url, body, cfg);
   return data;
 }
+
 export async function put<T, B = unknown>(
   url: string,
   body: B,
@@ -29,6 +32,7 @@ export async function put<T, B = unknown>(
   const { data } = await http.put<T>(url, body, cfg);
   return data;
 }
+
 export async function patch<T, B = unknown>(
   url: string,
   body: B,
