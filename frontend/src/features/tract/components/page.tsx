@@ -1,17 +1,16 @@
-import { useTractOwners } from "../queries";
 import {
   ColumnDef,
   EntityTable,
 } from "../../../common/atomic/organisms/EntityTable";
-import { TractOwner } from "../types";
 import IconBtn from "../../../common/atomic/atoms/buttons/IconButton";
 import { Stack } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { maskCPF } from "../../../common/utils";
+import { useTracts } from "../queries";
+import { Tract } from "../types";
 
-export default function TractOwnersPage() {
-  const { data, isLoading, isError } = useTractOwners();
+export default function TractsPage() {
+  const { data, isLoading, isError } = useTracts();
 
   function onEdit(id: number) {
     // abrir modal, navegar, etc.
@@ -22,14 +21,23 @@ export default function TractOwnersPage() {
     // abrir modal de confirmação, etc.
   }
 
-  const columns: Array<ColumnDef<TractOwner>> = [
-    { key: "name", header: "Nome" },
-    { key: "cpf", header: "CPF", render: (r) => maskCPF(r.cpf) },
+  const columns: Array<ColumnDef<Tract>> = [
+    { key: "squareMeters", header: "Metros quadrados" },
+    {
+      key: "address",
+      header: "Endereço",
+      render: (r) => r.address.street + ", " + r.address.city,
+    },
+    {
+      key: "tractOwner",
+      header: "Dono do terreno",
+      render: (r) => r.tractOwner.name,
+    },
   ];
 
   return (
-    <EntityTable<TractOwner>
-      title="Donos de Terrenos"
+    <EntityTable<Tract>
+      title="Terrenos"
       data={data}
       isLoading={isLoading}
       isError={isError}

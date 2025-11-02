@@ -1,17 +1,16 @@
-import { useTractOwners } from "../queries";
 import {
   ColumnDef,
   EntityTable,
 } from "../../../common/atomic/organisms/EntityTable";
-import { TractOwner } from "../types";
 import IconBtn from "../../../common/atomic/atoms/buttons/IconButton";
 import { Stack } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { maskCPF } from "../../../common/utils";
+import { useQuotes } from "../queries";
+import { Quote } from "../types";
 
-export default function TractOwnersPage() {
-  const { data, isLoading, isError } = useTractOwners();
+export default function QuotesPage() {
+  const { data, isLoading, isError } = useQuotes();
 
   function onEdit(id: number) {
     // abrir modal, navegar, etc.
@@ -22,14 +21,26 @@ export default function TractOwnersPage() {
     // abrir modal de confirmação, etc.
   }
 
-  const columns: Array<ColumnDef<TractOwner>> = [
-    { key: "name", header: "Nome" },
-    { key: "cpf", header: "CPF", render: (r) => maskCPF(r.cpf) },
+  const columns: Array<ColumnDef<Quote>> = [
+    {
+      key: "tract",
+      header: "Terreno",
+      render: (row) =>
+        row.tract.address.street + ", " + row.tract.address.neighborhood.name,
+    },
+    { key: "lotCount", header: "Número de lotes" },
+    {
+      key: "pricePerLot",
+      header: "Preço por lote",
+      render: (row) => `R$ ${row.pricePerLot.toFixed(2)}`,
+    },
+    { key: "feasibility", header: "Viabilidade" },
+    { key: "createDate", header: "Data de criação" },
   ];
 
   return (
-    <EntityTable<TractOwner>
-      title="Donos de Terrenos"
+    <EntityTable<Quote>
+      title="Cotações"
       data={data}
       isLoading={isLoading}
       isError={isError}

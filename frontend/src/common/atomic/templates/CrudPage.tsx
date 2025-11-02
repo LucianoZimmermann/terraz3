@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Stack, Typography } from "@mui/material";
 import { PrimaryButton } from "../atoms/buttons/Button";
-import { DataTable, Column } from "../organisms/DataTable";
+import { DataTable, Column } from "../organisms/EntityTable";
 import { CrudDialog } from "../organisms/CrudDialog";
 
 type UseList<T, P> = (params?: P) => {

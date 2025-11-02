@@ -1,17 +1,17 @@
-import { useTractOwners } from "../queries";
 import {
   ColumnDef,
   EntityTable,
 } from "../../../common/atomic/organisms/EntityTable";
-import { TractOwner } from "../types";
 import IconBtn from "../../../common/atomic/atoms/buttons/IconButton";
 import { Stack } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { maskCPF } from "../../../common/utils";
+import { useThirdParties } from "../queries";
+import { ThirdParty } from "../types";
+import { renderFactorType } from "../../../common/utils";
 
-export default function TractOwnersPage() {
-  const { data, isLoading, isError } = useTractOwners();
+export default function ThirdPartiesPage() {
+  const { data, isLoading, isError } = useThirdParties();
 
   function onEdit(id: number) {
     // abrir modal, navegar, etc.
@@ -22,14 +22,19 @@ export default function TractOwnersPage() {
     // abrir modal de confirmação, etc.
   }
 
-  const columns: Array<ColumnDef<TractOwner>> = [
+  const columns: Array<ColumnDef<ThirdParty>> = [
     { key: "name", header: "Nome" },
-    { key: "cpf", header: "CPF", render: (r) => maskCPF(r.cpf) },
+    { key: "cnpj", header: "CNPJ" },
+    {
+      key: "factorType",
+      header: "Tipo de serviço",
+      render: (r) => renderFactorType(r.factorType.factorTypeEnum),
+    },
   ];
 
   return (
-    <EntityTable<TractOwner>
-      title="Donos de Terrenos"
+    <EntityTable<ThirdParty>
+      title="Terceiros"
       data={data}
       isLoading={isLoading}
       isError={isError}

@@ -1,5 +1,6 @@
 package com.catolica.terraz.service;
 
+import com.catolica.terraz.dto.FactorTypeDTO;
 import com.catolica.terraz.dto.ThirdPartyDTO;
 import com.catolica.terraz.model.ThirdParty;
 import com.catolica.terraz.repository.ThirdPartyRepository;
@@ -22,9 +23,14 @@ public class ThirdPartyService {
   }
 
   public List<ThirdPartyDTO> getAllThirdParty() {
-    return thirdPartyRepository.findAll().stream()
-        .map(thirdParty -> modelMapper.map(thirdParty, ThirdPartyDTO.class))
-        .collect(Collectors.toList());
+    return thirdPartyRepository.findAllWithFactorType().stream()
+        .map(thirdParty -> ThirdPartyDTO.builder()
+                .id(thirdParty.getId())
+                .name(thirdParty.getName())
+                .cnpj(thirdParty.getCnpj())
+                .factorType(FactorTypeDTO.builder().id(thirdParty.getId()).factorTypeEnum(thirdParty.getFactorType().getFactorTypeEnum()).build())
+                .build()
+        ).collect(Collectors.toList());
   }
 
   public ThirdPartyDTO getThirdPartyById(Long id) {

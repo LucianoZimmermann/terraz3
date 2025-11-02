@@ -1,12 +1,10 @@
-export type FactorTypeEnum = string;
-
 export type FactorType = {
   id: number;
-  factorTypeEnum: FactorTypeEnum;
+  factorTypeEnum: string;
 };
 
 export type FactorTypeCreateDTO = {
-  factorTypeEnum: FactorTypeEnum;
+  factorTypeEnum: string;
 };
 
 export type FactorTypeUpdateDTO = Partial<FactorTypeCreateDTO>;

@@ -6,6 +6,10 @@ import {
 } from "@tanstack/react-router";
 import { Shell } from "../features/shell/MainMenu";
 import TractOwnersPage from "../features/tract_owner/components/page";
+import TractsPage from "../features/tract/components/page";
+import ThirdPartiesPage from "../features/third_party/components/page";
+import NeighborhoodsPage from "../features/neighborhood/components/page";
+import QuotesPage from "../features/quotation/components/page";
 
 export function makeRouter(shellProps: {
   mode: "dark" | "light";
@@ -31,7 +35,38 @@ export function makeRouter(shellProps: {
     component: TractOwnersPage,
   });
 
-  const routeTree = rootRoute.addChildren([indexRoute, tractOwnersRoute]);
+  const tractRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/tracts",
+    component: TractsPage,
+  });
+
+  const thirdPartyRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/third-parties",
+    component: ThirdPartiesPage,
+  });
+
+  const neighborhoodRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/neighborhoods",
+    component: NeighborhoodsPage,
+  });
+
+  const quotesRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/quotes",
+    component: QuotesPage,
+  });
+
+  const routeTree = rootRoute.addChildren([
+    indexRoute,
+    tractOwnersRoute,
+    tractRoute,
+    thirdPartyRoute,
+    neighborhoodRoute,
+    quotesRoute,
+  ]);
   return createRouter({ routeTree });
 }
 

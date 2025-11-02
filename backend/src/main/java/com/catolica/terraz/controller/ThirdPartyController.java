@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/third-party")
+@RequestMapping("/third-parties")
 @RequiredArgsConstructor
 public class ThirdPartyController {
   private final ThirdPartyService thirdPartyService;

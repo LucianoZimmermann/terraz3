@@ -1,17 +1,16 @@
-import { useTractOwners } from "../queries";
 import {
   ColumnDef,
   EntityTable,
 } from "../../../common/atomic/organisms/EntityTable";
-import { TractOwner } from "../types";
 import IconBtn from "../../../common/atomic/atoms/buttons/IconButton";
 import { Stack } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { maskCPF } from "../../../common/utils";
+import { useNeighborhoods } from "../queries";
+import { Neighborhood } from "../types";
 
-export default function TractOwnersPage() {
-  const { data, isLoading, isError } = useTractOwners();
+export default function NeighborhoodsPage() {
+  const { data, isLoading, isError } = useNeighborhoods();
 
   function onEdit(id: number) {
     // abrir modal, navegar, etc.
@@ -22,14 +21,14 @@ export default function TractOwnersPage() {
     // abrir modal de confirmação, etc.
   }
 
-  const columns: Array<ColumnDef<TractOwner>> = [
+  const columns: Array<ColumnDef<Neighborhood>> = [
     { key: "name", header: "Nome" },
-    { key: "cpf", header: "CPF", render: (r) => maskCPF(r.cpf) },
+    { key: "priceFactor", header: "Fator de Preço" },
   ];
 
   return (
-    <EntityTable<TractOwner>
-      title="Donos de Terrenos"
+    <EntityTable<Neighborhood>
+      title="Bairros"
       data={data}
       isLoading={isLoading}
       isError={isError}
