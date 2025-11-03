@@ -4,12 +4,13 @@ import {
   createRouter,
   Outlet,
 } from "@tanstack/react-router";
-import { Shell } from "../features/shell/MainMenu";
+import { Shell } from "../features/shell";
 import TractOwnersPage from "../features/tract_owner/components/page";
 import TractsPage from "../features/tract/components/page";
 import ThirdPartiesPage from "../features/third_party/components/page";
 import NeighborhoodsPage from "../features/neighborhood/components/page";
 import QuotesPage from "../features/quotation/components/page";
+import { Welcome } from "../common/atomic/organisms/Welcome";
 
 export function makeRouter(shellProps: {
   mode: "dark" | "light";
@@ -26,7 +27,7 @@ export function makeRouter(shellProps: {
   const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/",
-    component: () => <div />,
+    component: Welcome,
   });
 
   const tractOwnersRoute = createRoute({

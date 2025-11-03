@@ -23,8 +23,8 @@ public class QuoteController {
   }
 
   @GetMapping
-  public ResponseEntity<List<RequestQuoteDTO>> getAllQuotes() {
-    List<RequestQuoteDTO> quotes = quoteService.getAllQuotes();
+  public ResponseEntity<List<ResponseQuoteDTO>> getAllQuotes() {
+    List<ResponseQuoteDTO> quotes = quoteService.getAllQuotes();
     return ResponseEntity.ok(quotes);
   }
 

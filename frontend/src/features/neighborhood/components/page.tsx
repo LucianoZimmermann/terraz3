@@ -23,7 +23,11 @@ export default function NeighborhoodsPage() {
 
   const columns: Array<ColumnDef<Neighborhood>> = [
     { key: "name", header: "Nome" },
-    { key: "priceFactor", header: "Fator de Preço" },
+    {
+      key: "priceFactor",
+      header: "Fator de Preço",
+      render: (r) => r.priceFactor.toFixed(2),
+    },
   ];
 
   return (

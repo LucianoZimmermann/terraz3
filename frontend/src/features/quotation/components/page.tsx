@@ -8,6 +8,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useQuotes } from "../queries";
 import { Quote } from "../types";
+import { renderQuoteFeasibility } from "../../../common/utils";
 
 export default function QuotesPage() {
   const { data, isLoading, isError } = useQuotes();
@@ -28,14 +29,32 @@ export default function QuotesPage() {
       render: (row) =>
         row.tract.address.street + ", " + row.tract.address.neighborhood.name,
     },
-    { key: "lotCount", header: "Número de lotes" },
+    {
+      key: "lotCount",
+      header: "Número de lotes",
+      render: (row) => row.lotCount.toFixed(1),
+    },
     {
       key: "pricePerLot",
       header: "Preço por lote",
       render: (row) => `R$ ${row.pricePerLot.toFixed(2)}`,
     },
-    { key: "feasibility", header: "Viabilidade" },
-    { key: "createDate", header: "Data de criação" },
+    {
+      key: "feasibility",
+      header: "Viabilidade",
+      render: (row) => renderQuoteFeasibility(row.feasibility),
+    },
+    {
+      key: "createDate",
+      header: "Data de criação",
+      render: (row) =>
+        new Date(row.createDate).toLocaleDateString("pt-BR", {
+          weekday: "short",
+          day: "numeric",
+          month: "numeric",
+          year: "numeric",
+        }),
+    },
   ];
 
   return (

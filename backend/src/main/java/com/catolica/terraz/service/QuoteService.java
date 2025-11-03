@@ -79,9 +79,9 @@ public class QuoteService {
     return responseDTO;
   }
 
-  public List<RequestQuoteDTO> getAllQuotes() {
+  public List<ResponseQuoteDTO> getAllQuotes() {
     return quoteRepository.findAll().stream()
-        .map(quote -> modelMapper.map(quote, RequestQuoteDTO.class))
+        .map(quote -> modelMapper.map(quote, ResponseQuoteDTO.class))
         .collect(Collectors.toList());
   }
 

@@ -21,6 +21,8 @@ import HandshakeIcon from "@mui/icons-material/Handshake";
 import LandscapeIcon from "@mui/icons-material/Landscape";
 import PersonIcon from "@mui/icons-material/Person";
 import { useNavigate } from "@tanstack/react-router";
+import HomeIcon from "@mui/icons-material/Home";
+import IconBtn from "../../common/atomic/atoms/buttons/IconButton";
 
 const DRAWER_W = 240;
 const MINI_W = 72;
@@ -47,7 +49,7 @@ export function Shell({
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ width: "100%", display: "grid", placeItems: "center" }}>
       <AppBar
         position="fixed"
         variant="glass"
@@ -62,6 +64,10 @@ export function Shell({
           >
             <MenuIcon />
           </IconButton>
+
+          <IconBtn aria-label="Home" onClick={() => navigate({ to: "/" })}>
+            <HomeIcon color="primary" fontSize="small" />
+          </IconBtn>
 
           <Typography variant="h6" sx={{ fontWeight: 700, ml: 1, flexGrow: 1 }}>
             Terraz

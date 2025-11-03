@@ -85,8 +85,11 @@ export function EntityTable<T extends Record<string, any>>({
   return (
     <Stack spacing={2}>
       {title && <Typography variant="h5">{title}</Typography>}
-      <Paper variant={paperVariant as any}>
-        <Table size={size}>
+      <Paper
+        variant={paperVariant as any}
+        sx={{ width: "100%", overflowX: "auto" }}
+      >
+        <Table size={size} sx={{ width: "100%", tableLayout: "fixed" }}>
           <TableHead>
             <TableRow>
               {autoColumns.map((c) => (
@@ -94,7 +97,17 @@ export function EntityTable<T extends Record<string, any>>({
                   {c.header ?? toHeader(String(c.key))}
                 </TableCell>
               ))}
-              {actions && <TableCell align="right">{actionsHeader}</TableCell>}
+              {actions && (
+                <TableCell
+                  align="right"
+                  sx={{
+                    position: "sticky",
+                    right: 0,
+                  }}
+                >
+                  {actionsHeader}
+                </TableCell>
+              )}
             </TableRow>
           </TableHead>
 
@@ -111,7 +124,21 @@ export function EntityTable<T extends Record<string, any>>({
                     </TableCell>
                   ))}
                   {actions && (
-                    <TableCell align="right">{actions(row)}</TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        position: "sticky",
+                        right: 0,
+                      }}
+                    >
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        justifyContent="flex-end"
+                      >
+                        {actions(row)}
+                      </Stack>
+                    </TableCell>
                   )}
                 </TableRow>
               );
