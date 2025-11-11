@@ -1,5 +1,6 @@
 package com.catolica.terraz.dto;
 
+import com.catolica.terraz.dto.tractowner.TractOwnerDTO;
 import lombok.*;
 
 @Getter

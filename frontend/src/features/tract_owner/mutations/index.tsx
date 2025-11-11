@@ -13,6 +13,7 @@ export const useCreateTractOwner = () => {
   const qc = useQueryClient();
   return useMutation<TractOwner, AppError, TractOwnerCreateDTO>({
     mutationFn: createTractOwner,
+    retry: false,
     onSuccess: (created) => {
       qc.setQueriesData<TractOwner[] | undefined>(
         { queryKey: keys.all, exact: false },
@@ -31,6 +32,7 @@ export const useUpdateTractOwner = () => {
     { id: number; body: TractOwnerUpdateDTO }
   >({
     mutationFn: ({ id, body }) => updateTractOwner(id, body),
+    retry: false,
     onSuccess: (updated) => {
       qc.setQueriesData<TractOwner[] | undefined>(
         { queryKey: keys.all, exact: false },
@@ -48,6 +50,7 @@ export const useDeleteTractOwner = () => {
   const qc = useQueryClient();
   return useMutation<void, AppError, number>({
     mutationFn: (id) => deleteTractOwner(id),
+    retry: false,
     onSuccess: (_, id) => {
       qc.setQueriesData<TractOwner[] | undefined>(
         { queryKey: keys.all, exact: false },
@@ -63,6 +66,7 @@ export const useDeleteTractOwnerCascade = () => {
   const qc = useQueryClient();
   return useMutation<void, AppError, number>({
     mutationFn: (id) => deleteTractOwnerCascade(id),
+    retry: false,
     onSuccess: (_, id) => {
       qc.setQueriesData<TractOwner[] | undefined>(
         { queryKey: keys.all, exact: false },

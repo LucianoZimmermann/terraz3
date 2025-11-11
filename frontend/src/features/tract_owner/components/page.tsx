@@ -20,6 +20,10 @@ import {
   Stack,
   TextField,
   Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -28,20 +32,28 @@ import {
   EntityEditModal,
   FieldDef,
 } from "../../../common/atomic/organisms/EntityEditModal";
-import type { AppError } from "../../../common/api/types/AppError";
-
-function is409(err: unknown) {
-  const e = err as any;
-  return e?.status === 409 || e?.response?.status === 409;
-}
+import {
+  extractProblem,
+  getProblemCode,
+} from "../../../common/api/types/AppError";
+import {
+  useOwnerDeletionConflict,
+  useOwnerDeletionOpen,
+  useProblemStore,
+} from "../../../common/state/problem.store";
 
 export default function TractOwnersPage() {
   const { data, isLoading, isError } = useTractOwners();
   const updateOwner = useUpdateTractOwner();
   const deleteOwner = useDeleteTractOwner();
   const deleteOwnerCascade = useDeleteTractOwnerCascade();
+
+  const conflict = useOwnerDeletionConflict();
+  const open = useOwnerDeletionOpen();
+  const setProblem = useProblemStore((s) => s.setProblem);
+  const clearProblem = useProblemStore((s) => s.clear);
+
   const [editRow, setEditRow] = useState<TractOwner | null>(null);
-  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   function digits(s: string) {
     return s.replace(/\D/g, "");
@@ -53,9 +65,17 @@ export default function TractOwnersPage() {
   }
 
   function onDelete(id: number) {
+    if (deleteOwner.isPending || open) return;
     deleteOwner.mutate(id, {
-      onError: (err: AppError) => {
-        if (is409(err)) setConfirmId(id);
+      onError: (err) => {
+        if (err.code === "OWNER_HAS_DEPENDENTS") {
+          const pd = extractProblem(err);
+
+          console.log("pd", pd);
+
+          if (pd) setProblem(pd);
+          console.log("open", open);
+        }
       },
     });
   }
@@ -100,6 +120,7 @@ export default function TractOwnersPage() {
               aria-label="Excluir"
               color="error"
               onClick={() => onDelete(row.id)}
+              disabled={deleteOwner.isPending || open}
             >
               <DeleteOutlineIcon fontSize="small" />
             </IconBtn>
@@ -124,29 +145,39 @@ export default function TractOwnersPage() {
         loading={updateOwner.isPending}
       />
 
-      <Dialog
-        open={confirmId !== null}
-        onClose={() => setConfirmId(null)}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle>Excluir dono e terrenos vinculados?</DialogTitle>
+      <Dialog open={open} onClose={clearProblem} fullWidth maxWidth="sm">
+        <DialogTitle>
+          Excluir dono e {conflict?.conflict.tractsCount ?? 0} terreno(s)
+          vinculados?
+        </DialogTitle>
         <DialogContent>
-          <Typography variant="body2">
-            Há terrenos vinculados a este dono. Confirmar irá excluí-los junto
-            com o dono.
+          <Typography variant="body2" sx={{ mb: 1.5 }}>
+            Confirmar irá excluir o dono e os terrenos listados abaixo.
           </Typography>
+          <List dense disablePadding>
+            {(conflict?.conflict.tracts ?? []).map((t, idx) => (
+              <div key={t.tractId}>
+                {idx > 0 && <Divider />}
+                <ListItem disableGutters>
+                  <ListItemText
+                    primary={`Terreno #${t.tractId}`}
+                    secondary={`${t.street} — CEP ${t.cep}`}
+                  />
+                </ListItem>
+              </div>
+            ))}
+          </List>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmId(null)}>Cancelar</Button>
+          <Button onClick={clearProblem}>Cancelar</Button>
           <Button
             variant="contained"
             color="error"
             onClick={() => {
-              if (confirmId !== null) {
-                deleteOwnerCascade.mutate(confirmId, {
-                  onSuccess: () => setConfirmId(null),
-                });
+              if (deleteOwnerCascade.isPending) return;
+              const ownerId = conflict?.conflict.ownerId;
+              if (ownerId != null) {
+                deleteOwnerCascade.mutate(ownerId, { onSuccess: clearProblem });
               }
             }}
             disabled={deleteOwnerCascade.isPending}

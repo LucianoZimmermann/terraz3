@@ -1,7 +1,8 @@
 package com.catolica.terraz.service;
 
-import com.catolica.terraz.dto.TractOwnerDTO;
-import com.catolica.terraz.dto.TractOwnerDeletionConflictDTO;
+import com.catolica.terraz.dto.tract.TractAddressItem;
+import com.catolica.terraz.dto.tractowner.TractOwnerDTO;
+import com.catolica.terraz.exception.ExceptionHelper;
 import com.catolica.terraz.model.TractOwner;
 import com.catolica.terraz.repository.TractOwnerRepository;
 import com.catolica.terraz.repository.TractRepository;
@@ -11,57 +12,57 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+
+import static com.catolica.terraz.exception.ExceptionHelper.*;
 
 @Service
 @RequiredArgsConstructor
 public class TractOwnerService {
-  private final TractOwnerRepository tractOwnerRepository;
-  private final TractRepository tractRepository;
-  private final ModelMapper modelMapper;
 
-  public TractOwnerDTO save(TractOwnerDTO dto) {
-    TractOwner e = modelMapper.map(dto, TractOwner.class);
-    e = tractOwnerRepository.save(e);
-    return modelMapper.map(e, TractOwnerDTO.class);
-  }
+    private final TractOwnerRepository tractOwnerRepository;
+    private final TractRepository tractRepository;
+    private final ModelMapper modelMapper;
+    private final String entityType = "Tract"
 
-  public List<TractOwnerDTO> getAllTractOwners() {
-    return tractOwnerRepository.findAll().stream()
-            .map(o -> modelMapper.map(o, TractOwnerDTO.class))
-            .toList();
-  }
-
-  public Optional<TractOwnerDTO> getTractOwnerById(Long id) {
-    return tractOwnerRepository.findById(id)
-            .map(o -> modelMapper.map(o, TractOwnerDTO.class));
-  }
-
-  @Transactional
-  public Optional<TractOwnerDTO> update(Long id, TractOwnerDTO dto) {
-    return tractOwnerRepository.findById(id).map(existing -> {
-      modelMapper.map(dto, existing);
-      existing.setId(id);
-      TractOwner saved = tractOwnerRepository.save(existing);
-      return modelMapper.map(saved, TractOwnerDTO.class);
-    });
-  }
-
-  @Transactional
-  public Optional<TractOwnerDeletionConflictDTO> deleteOrReport(Long id, boolean cascade) {
-    TractOwner owner = tractOwnerRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("TractOwner " + id + " não encontrado"));
-
-    long cnt = tractRepository.countByTractOwnerId(id);
-    if (cnt > 0 && !cascade) {
-      List<Long> ids = tractRepository.findIdsByTractOwnerId(id);
-      return Optional.of(new TractOwnerDeletionConflictDTO(id, cnt, ids));
+    public TractOwnerDTO save(TractOwnerDTO dto) {
+        TractOwner entity = modelMapper.map(dto, TractOwner.class);
+        entity = tractOwnerRepository.save(entity);
+        return modelMapper.map(entity, TractOwnerDTO.class);
     }
 
-    if (cnt > 0 && cascade) {
-      tractRepository.deleteByTractOwnerId(id);
+    public List<TractOwnerDTO> getAllTractOwners() {
+        return tractOwnerRepository.findAll().stream()
+                .map(e -> modelMapper.map(e, TractOwnerDTO.class))
+                .toList();
     }
-    tractOwnerRepository.delete(owner);
-    return Optional.empty();
-  }
+
+    public TractOwnerDTO getByIdOrThrow(Long id) {
+        TractOwner entity = tractOwnerRepository.findById(id).orElseThrow(() -> ExceptionHelper.notFoundException(entityType, id));
+        return modelMapper.map(entity, TractOwnerDTO.class);
+    }
+
+    @Transactional
+    public TractOwnerDTO update(Long id, TractOwnerDTO dto) {
+        TractOwner entity = tractOwnerRepository.findById(id).orElseThrow(() -> ExceptionHelper.notFoundException(entityType, id));
+        modelMapper.map(dto, entity);
+        entity.setId(id);
+        entity = tractOwnerRepository.save(entity);
+        return modelMapper.map(entity, TractOwnerDTO.class);
+    }
+
+    @Transactional
+    public void delete(Long id, boolean cascade) {
+        TractOwner owner = tractOwnerRepository.findById(id).orElseThrow(() -> ExceptionHelper.notFoundException(entityType, id));
+
+        long cnt = tractRepository.countByTractOwnerId(id);
+        if (cnt > 0 && !cascade) {
+            List<TractAddressItem> tractAddressItem = tractRepository.findTractAddressesByOwnerId(id);
+            throw ownerDeletionConflict(id, cnt, tractAddressItem);
+        }
+        if (cnt > 0 && cascade) {
+            tractRepository.deleteByTractOwnerId(id);
+        }
+        tractOwnerRepository.delete(owner);
+    }
 }

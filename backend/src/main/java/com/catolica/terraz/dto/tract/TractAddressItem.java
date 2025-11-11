@@ -1,4 +1,4 @@
-package com.catolica.terraz.dto;
+package com.catolica.terraz.dto.tract;
 
 import lombok.*;
 
