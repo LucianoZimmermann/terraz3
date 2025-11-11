@@ -6,7 +6,7 @@ import { listNeighborhoods } from "../api";
 export const keys = {
   all: ["neighborhood"] as const,
   list: (p?: unknown) => ["neighborhood", "list", p] as const,
-  byId: (id: number | string) => ["neighborhood", "byId", id] as const,
+  byId: (id: number) => ["neighborhood", "byId", id] as const,
 };
 
 export const useNeighborhoods = (params?: NeighborhoodListParams) =>

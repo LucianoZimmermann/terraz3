@@ -6,7 +6,7 @@ import { listAddresses } from "../api/index.tsx";
 export const keys = {
   all: ["address"] as const,
   list: (p?: AddressListParams) => ["address", "list", p ?? {}] as const, // p padronizado
-  byId: (id: number | string) => ["address", "byId", id] as const,
+  byId: (id: number) => ["address", "byId", id] as const,
 };
 
 export function useAddresses(params?: AddressListParams) {

@@ -70,11 +70,7 @@ export default function TractOwnersPage() {
       onError: (err) => {
         if (err.code === "OWNER_HAS_DEPENDENTS") {
           const pd = extractProblem(err);
-
-          console.log("pd", pd);
-
           if (pd) setProblem(pd);
-          console.log("open", open);
         }
       },
     });

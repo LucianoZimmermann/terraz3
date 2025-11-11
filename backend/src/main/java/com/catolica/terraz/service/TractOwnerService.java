@@ -2,11 +2,11 @@ package com.catolica.terraz.service;
 
 import com.catolica.terraz.dto.tract.TractAddressItem;
 import com.catolica.terraz.dto.tractowner.TractOwnerDTO;
+import com.catolica.terraz.enums.EntityType;
 import com.catolica.terraz.exception.ExceptionHelper;
 import com.catolica.terraz.model.TractOwner;
 import com.catolica.terraz.repository.TractOwnerRepository;
 import com.catolica.terraz.repository.TractRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.catolica.terraz.exception.ExceptionHelper.*;
+import static com.catolica.terraz.exception.ExceptionHelper.ownerDeletionConflict;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +23,6 @@ public class TractOwnerService {
     private final TractOwnerRepository tractOwnerRepository;
     private final TractRepository tractRepository;
     private final ModelMapper modelMapper;
-    private final String entityType = "Tract"
 
     public TractOwnerDTO save(TractOwnerDTO dto) {
         TractOwner entity = modelMapper.map(dto, TractOwner.class);
@@ -38,13 +37,13 @@ public class TractOwnerService {
     }
 
     public TractOwnerDTO getByIdOrThrow(Long id) {
-        TractOwner entity = tractOwnerRepository.findById(id).orElseThrow(() -> ExceptionHelper.notFoundException(entityType, id));
+        TractOwner entity = tractOwnerRepository.findById(id).orElseThrow(() -> ExceptionHelper.notFoundException(EntityType.TRACT, id));
         return modelMapper.map(entity, TractOwnerDTO.class);
     }
 
     @Transactional
     public TractOwnerDTO update(Long id, TractOwnerDTO dto) {
-        TractOwner entity = tractOwnerRepository.findById(id).orElseThrow(() -> ExceptionHelper.notFoundException(entityType, id));
+        TractOwner entity = tractOwnerRepository.findById(id).orElseThrow(() -> ExceptionHelper.notFoundException(EntityType.TRACT, id));
         modelMapper.map(dto, entity);
         entity.setId(id);
         entity = tractOwnerRepository.save(entity);
@@ -53,7 +52,7 @@ public class TractOwnerService {
 
     @Transactional
     public void delete(Long id, boolean cascade) {
-        TractOwner owner = tractOwnerRepository.findById(id).orElseThrow(() -> ExceptionHelper.notFoundException(entityType, id));
+        TractOwner owner = tractOwnerRepository.findById(id).orElseThrow(() -> ExceptionHelper.notFoundException(EntityType.TRACT, id));
 
         long cnt = tractRepository.countByTractOwnerId(id);
         if (cnt > 0 && !cascade) {

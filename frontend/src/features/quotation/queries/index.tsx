@@ -6,7 +6,7 @@ import { listQuotes } from "../api";
 export const keys = {
   all: ["quote"] as const,
   list: (p?: unknown) => ["quote", "list", p] as const,
-  byId: (id: number | string) => ["quote", "byId", id] as const,
+  byId: (id: number) => ["quote", "byId", id] as const,
 };
 
 export const useQuotes = (params?: QuoteListParams) =>

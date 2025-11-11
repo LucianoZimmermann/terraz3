@@ -2,6 +2,7 @@ package com.catolica.terraz.exception;
 
 import com.catolica.terraz.dto.tract.TractAddressItem;
 import com.catolica.terraz.dto.tractowner.TractOwnerDeletionConflictDetails;
+import com.catolica.terraz.enums.EntityType;
 import com.catolica.terraz.exception.tractowner.TractOwnerDeletionConflictException;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -17,7 +18,7 @@ public final class ExceptionHelper {
         return new TractOwnerDeletionConflictException(details);
     }
 
-    public static EntityNotFoundException notFoundException (String entity, Long id){
-        return new EntityNotFoundException(entity + id + " não encontrado");
+    public static EntityNotFoundException notFoundException (EntityType entity, Long id){
+        return new EntityNotFoundException(entity.toString() + id + " não encontrado");
     }
 }

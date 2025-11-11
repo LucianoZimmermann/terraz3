@@ -13,16 +13,14 @@ export const listNeighborhoods = (
   cfg?: { signal?: AbortSignal },
 ) => get<Neighborhood[]>(BASE_URL, { params, signal: cfg?.signal });
 
-export const getNeighborhood = (id: number | string) =>
+export const getNeighborhood = (id: number) =>
   get<Neighborhood>(`${BASE_URL}/${id}`);
 
 export const createNeighborhood = (body: NeighborhoodCreateDTO) =>
   post<Neighborhood, NeighborhoodCreateDTO>(BASE_URL, body);
 
-export const updateNeighborhood = (
-  id: number | string,
-  body: NeighborhoodUpdateDTO,
-) => put<Neighborhood, NeighborhoodUpdateDTO>(`${BASE_URL}/${id}`, body);
+export const updateNeighborhood = (id: number, body: NeighborhoodUpdateDTO) =>
+  put<Neighborhood, NeighborhoodUpdateDTO>(`${BASE_URL}/${id}`, body);
 
-export const deleteNeighborhood = (id: number | string) =>
+export const deleteNeighborhood = (id: number) =>
   del<void>(`${BASE_URL}/${id}`);

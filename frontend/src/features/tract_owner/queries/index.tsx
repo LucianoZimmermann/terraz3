@@ -6,7 +6,7 @@ import { listTractOwners } from "../api";
 export const keys = {
   all: ["tractOwner"] as const,
   list: (p?: unknown) => ["tractOwner", "list", p] as const,
-  byId: (id: number | string) => ["tractOwner", "byId", id] as const,
+  byId: (id: number) => ["tractOwner", "byId", id] as const,
 };
 
 export const useTractOwners = (params?: TractOwnerListParams) =>

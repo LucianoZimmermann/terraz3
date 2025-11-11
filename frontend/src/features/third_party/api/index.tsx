@@ -12,16 +12,13 @@ export const listThirdParties = (
   cfg?: { signal?: AbortSignal },
 ) => get<ThirdParty[]>(BASE_URL, { params, signal: cfg?.signal });
 
-export const getThirdParty = (id: number | string) =>
+export const getThirdParty = (id: number) =>
   get<ThirdParty>(`${BASE_URL}/${id}`);
 
 export const createThirdParty = (body: ThirdPartyCreateDTO) =>
   post<ThirdParty, ThirdPartyCreateDTO>(BASE_URL, body);
 
-export const updateThirdParty = (
-  id: number | string,
-  body: ThirdPartyUpdateDTO,
-) => put<ThirdParty, ThirdPartyUpdateDTO>(`${BASE_URL}/${id}`, body);
+export const updateThirdParty = (id: number, body: ThirdPartyUpdateDTO) =>
+  put<ThirdParty, ThirdPartyUpdateDTO>(`${BASE_URL}/${id}`, body);
 
-export const deleteThirdParty = (id: number | string) =>
-  del<void>(`${BASE_URL}/${id}`);
+export const deleteThirdParty = (id: number) => del<void>(`${BASE_URL}/${id}`);

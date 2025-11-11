@@ -24,13 +24,11 @@ type Resp = { status?: number; data?: unknown };
 
 export function getResponse(err: unknown): Resp | null {
   const e = err as any;
-  console.log("getResponse", e);
   if (e?.cause.response)
     return {
       status: e?.cause?.response?.status,
       data: e?.cause?.response?.data,
     };
-  console.log("getResponse no cause", e);
   if (typeof e?.status === "number" && "data" in (e ?? {}))
     return { status: e.status, data: e.data };
   return null;
@@ -62,7 +60,6 @@ export function extractProblem<
   const raw = getResponse(err)?.data ?? (err as any)?.data ?? null;
   if (!isObj(raw)) return null;
   const o = normalizeProblem(raw);
-  console.log("extractProblem", o);
   if (
     "title" in o ||
     "status" in o ||

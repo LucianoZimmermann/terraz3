@@ -6,7 +6,7 @@ import { listThirdParties } from "../api";
 export const keys = {
   all: ["thirdParty"] as const,
   list: (p?: unknown) => ["thirdParty", "list", p] as const,
-  byId: (id: number | string) => ["thirdParty", "byId", id] as const,
+  byId: (id: number) => ["thirdParty", "byId", id] as const,
 };
 
 export const useThirdParties = (params?: ThirdPartyListParams) =>
