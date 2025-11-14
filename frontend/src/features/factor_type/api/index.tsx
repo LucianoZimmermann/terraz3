@@ -8,8 +8,10 @@ import {
 
 const BASE_URL = "/factor-types";
 
-export const listFactorTypes = (params?: FactorTypeListParams) =>
-  get<FactorType[]>(BASE_URL, { params });
+export const listFactorTypes = (
+  params?: FactorTypeListParams,
+  cfg?: { signal?: AbortSignal },
+) => get<FactorType[]>(BASE_URL, { params, signal: cfg?.signal });
 
 export const getFactorType = (id: number) =>
   get<FactorType>(`${BASE_URL}/${id}`);

@@ -2,12 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tract, TractCreateDTO, TractUpdateDTO } from "../types";
 import { AppError } from "../../../common/api/types/AppError";
 import { createTract, deleteTract, updateTract } from "../api";
-
-export const keys = {
-  all: ["tract"] as const,
-  list: (p?: unknown) => ["tract", "list", p] as const,
-  byId: (id: number) => ["tract", "byId", id] as const,
-};
+import { keys } from "../queries";
 
 export const useCreateTract = () => {
   const qc = useQueryClient();
@@ -21,7 +16,20 @@ export const useUpdateTract = () => {
   const qc = useQueryClient();
   return useMutation<Tract, AppError, { id: number; body: TractUpdateDTO }>({
     mutationFn: ({ id, body }) => updateTract(id, body),
-    onSuccess: () => qc.invalidateQueries({ queryKey: keys.all }),
+    onSuccess: async (updated) => {
+      await Promise.all([
+        qc.invalidateQueries({
+          queryKey: keys.lists,
+          exact: false,
+          refetchType: "active",
+        }),
+        qc.invalidateQueries({
+          queryKey: keys.byId(updated.id),
+          exact: true,
+          refetchType: "active",
+        }),
+      ]);
+    },
   });
 };
 

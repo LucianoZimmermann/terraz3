@@ -1,17 +1,22 @@
 package com.catolica.terraz.service;
 
-import com.catolica.terraz.dto.AddressDTO;
+import com.catolica.terraz.dto.adress.AddressDTO;
+import com.catolica.terraz.dto.adress.AddressCreateDTO;
+import com.catolica.terraz.dto.adress.AddressUpdateDTO;
+import com.catolica.terraz.enums.EntityType;
+import com.catolica.terraz.exception.ExceptionHelper;
 import com.catolica.terraz.model.Address;
 import com.catolica.terraz.model.Neighborhood;
 import com.catolica.terraz.repository.AddressRepository;
 import com.catolica.terraz.repository.NeighborhoodRepository;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,44 +45,44 @@ public class AddressService {
     return modelMapper.map(address, AddressDTO.class);
   }
 
-  public AddressDTO saveAddress(AddressDTO addressDTO) {
-    Long nbId = addressDTO.getNeighborhood().getId();
-    Neighborhood neighborhood =
-        neighborhoodRepository
-            .findById(nbId)
-            .orElseThrow(() -> new RuntimeException("Neighborhood not found, id=" + nbId));
+  @Transactional
+  public AddressDTO saveAddress(AddressCreateDTO dto) {
+    Neighborhood nb = neighborhoodRepository.findById(dto.getNeighborhoodId())
+            .orElseThrow(() -> new RuntimeException("Neighborhood not found, id=" + dto.getNeighborhoodId()));
 
-    Address entity = modelMapper.map(addressDTO, Address.class);
-    entity.setNeighborhood(neighborhood);
+    Address entity = new Address();
+    entity.setStreet(dto.getStreet());
+    entity.setNumber(dto.getNumber());
+    entity.setCity(dto.getCity());
+    entity.setState(dto.getState());
+    entity.setCep(dto.getCep());
+    entity.setNeighborhood(nb);
 
     Address saved = addressRepository.save(entity);
-
-    AddressDTO result = modelMapper.map(saved, AddressDTO.class);
-    result.setNeighborhood(saved.getNeighborhood());
-    return result;
+    return modelMapper.map(saved, AddressDTO.class);
   }
 
-  public AddressDTO updateAddress(AddressDTO addressDTO) {
-    Address existing =
-        addressRepository
-            .findById(addressDTO.getId())
-            .orElseThrow(() -> new RuntimeException("Address not found, id=" + addressDTO.getId()));
+  @Transactional
+  public AddressDTO updateAddress(AddressUpdateDTO dto) {
+    Address existing = addressRepository.findById(dto.getId())
+            .orElseThrow(() -> ExceptionHelper.notFoundException(EntityType.ADDRESS, dto.getId()));
 
-    modelMapper.map(addressDTO, existing);
+    existing.setStreet(dto.getStreet());
+    existing.setNumber(dto.getNumber());
+    existing.setCity(dto.getCity());
+    existing.setState(dto.getState());
+    existing.setCep(dto.getCep());
 
-    Long newNbId = addressDTO.getNeighborhood().getId();
-    if (!newNbId.equals(existing.getNeighborhood().getId())) {
-      Neighborhood newNb =
-          neighborhoodRepository
-              .findById(newNbId)
-              .orElseThrow(() -> new RuntimeException("Neighborhood not found, id=" + newNbId));
-      existing.setNeighborhood(newNb);
+    if (dto.getNeighborhoodId() != null) {
+      Long cur = existing.getNeighborhood() != null ? existing.getNeighborhood().getId() : null;
+      if (!java.util.Objects.equals(cur, dto.getNeighborhoodId())) {
+        Neighborhood nb = neighborhoodRepository.getReferenceById(dto.getNeighborhoodId());
+        existing.setNeighborhood(nb);
+      }
     }
 
     Address saved = addressRepository.save(existing);
-
-    AddressDTO result = modelMapper.map(saved, AddressDTO.class);
-    return result;
+    return modelMapper.map(saved, AddressDTO.class);
   }
 
   public void deleteAddress(Long id) {

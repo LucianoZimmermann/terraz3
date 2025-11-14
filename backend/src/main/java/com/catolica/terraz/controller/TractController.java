@@ -24,4 +24,11 @@ public class TractController {
     List<TractDTO> tracts = tractService.getAllTracts().stream().toList();
     return ResponseEntity.ok(tracts);
   }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<TractDTO> updateTract(@PathVariable Long id, @RequestBody TractDTO tractDTO){
+    tractDTO.setId(id);
+    TractDTO updatedTract = tractService.updateTract(tractDTO);
+    return ResponseEntity.ok(updatedTract);
+  }
 }

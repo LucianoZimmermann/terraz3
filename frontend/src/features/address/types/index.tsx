@@ -24,7 +24,7 @@ export type AddressUpdateDTO = Partial<AddressCreateDTO>;
 export type AddressListParams = {
   city?: string;
   state?: string;
-  neighborhoodId?: number;
+  neighborhood: Neighborhood;
   page?: number;
   size?: number;
   sort?: string;

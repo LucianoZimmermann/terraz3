@@ -1,4 +1,5 @@
 import { Address } from "../../address/types/index.tsx";
+import { Neighborhood } from "../../neighborhood/types/index.tsx";
 import { TractOwner } from "../../tract_owner/types/index.tsx";
 
 export type Tract = {
@@ -24,4 +25,14 @@ export type TractListParams = {
   page?: number;
   size?: number;
   sort?: string;
+};
+
+export type TractForm = {
+  id?: number;
+  squareMeters: number | "";
+  street: string;
+  city: string;
+  neighborhoodId: number | "";
+  cep: string;
+  tractOwnerId: number | "";
 };

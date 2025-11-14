@@ -34,3 +34,11 @@ export function renderQuoteFeasibility(feasibilityEnum: string) {
       return feasibilityEnum.toLowerCase();
   }
 }
+
+export function onlyDigits(s: string) {
+  return s.replace(/\D/g, "");
+}
+export function maskCEP(s: string) {
+  const d = onlyDigits(s).slice(0, 8);
+  return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
+}

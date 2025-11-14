@@ -1,9 +1,9 @@
 package com.catolica.terraz.exception.tractowner;
 
 import com.catolica.terraz.dto.tractowner.TractOwnerDeletionConflictDetails;
-import com.catolica.terraz.exception.BusinessException;
+import com.catolica.terraz.exception.ApiException;
 
-public final class TractOwnerDeletionConflictException extends BusinessException {
+public final class TractOwnerDeletionConflictException extends ApiException {
     private final TractOwnerDeletionConflictDetails details;
 
     public TractOwnerDeletionConflictException(TractOwnerDeletionConflictDetails details) {

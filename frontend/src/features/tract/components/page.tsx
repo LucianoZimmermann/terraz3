@@ -17,8 +17,8 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { useTracts } from "../queries";
-import { Tract } from "../types";
+import { keys, useTracts } from "../queries";
+import { Tract, TractForm } from "../types";
 import {
   EntityEditModal,
   FieldDef,
@@ -26,25 +26,20 @@ import {
 import { useUpdateTract, useDeleteTract } from "../mutations";
 import { useTractOwners } from "../../tract_owner/queries";
 
-// NOVO: mutations de endereço
 import { useUpdateAddress } from "../../address/mutations";
-
-type TractForm = {
-  id?: number;
-  squareMeters: number | "";
-  street: string;
-  city: string;
-  cep: string;
-  tractOwnerId: number | "";
-};
+import { maskCEP, onlyDigits } from "../../../common/utils";
+import { useNeighborhoods } from "../../neighborhood/queries";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function TractsPage() {
+  const qc = useQueryClient();
+
   const { data, isLoading, isError } = useTracts();
   const { data: owners = [] } = useTractOwners();
+  const { data: neighborhoods = [] } = useNeighborhoods();
   const updateTract = useUpdateTract();
   const deleteTract = useDeleteTract();
 
-  // NOVO
   const updateAddr = useUpdateAddress();
 
   const [editRow, setEditRow] = useState<Tract | null>(null);
@@ -56,6 +51,11 @@ export default function TractsPage() {
       key: "address",
       header: "Endereço",
       render: (r) => `${r.address?.street ?? ""}, ${r.address?.city ?? ""}`,
+    },
+    {
+      key: "neighborhood" as keyof Tract,
+      header: "Bairro",
+      render: (r) => `${r.address?.neighborhood?.name ?? "-"}`,
     },
     {
       key: "tractOwner",
@@ -81,6 +81,7 @@ export default function TractsPage() {
       street: editRow.address?.street ?? "",
       city: editRow.address?.city ?? "",
       cep: editRow.address?.cep ?? "",
+      neighborhoodId: editRow.address?.neighborhood?.id ?? "",
       tractOwnerId: editRow.tractOwner?.id ?? "",
     };
   }, [editRow]);
@@ -128,6 +129,26 @@ export default function TractsPage() {
           value={value ?? ""}
           onChange={(e) => set(e.target.value)}
         />
+      ),
+    },
+    {
+      key: "neighborhoodId",
+      label: "Bairro",
+      required: true,
+      render: ({ value, set }) => (
+        <TextField
+          fullWidth
+          select
+          label="Bairro"
+          value={value ?? ""}
+          onChange={(e) => set(Number(e.target.value))}
+        >
+          {neighborhoods.map((n: { id: number; name: string }) => (
+            <MenuItem key={n.id} value={n.id}>
+              {n.name}
+            </MenuItem>
+          ))}
+        </TextField>
       ),
     },
     {
@@ -199,30 +220,38 @@ export default function TractsPage() {
         fields={fields}
         onClose={() => setEditRow(null)}
         onSubmit={async (val) => {
-          // 1) Atualiza endereço existente (PATCH). Não cria novo aqui.
-          const addrId = editRow?.address?.id;
-          if (addrId) {
-            await updateAddr.mutateAsync({
-              id: addrId,
+          try {
+            const addrId = editRow?.address?.id;
+
+            if (addrId) {
+              updateAddr.mutate({
+                id: addrId,
+                body: {
+                  street: val.street!,
+                  city: val.city!,
+                  neighborhoodId: Number(val.neighborhoodId!),
+                  cep: onlyDigits(val.cep!),
+                },
+              });
+              await qc.invalidateQueries({
+                queryKey: keys.lists,
+                exact: false,
+                refetchType: "active",
+              });
+            }
+
+            updateTract.mutate({
+              id: val.id!,
               body: {
-                street: val.street!,
-                city: val.city!,
-                cep: onlyDigits(val.cep!),
+                squareMeters: Number(val.squareMeters),
+                tractOwnerId: Number(val.tractOwnerId),
               },
             });
+
+            setEditRow(null);
+          } catch {
+            alert("Erro ao atualizar terreno.");
           }
-
-          // 2) Atualiza o Tract com IDs. Não envie "address" no body.
-          await updateTract.mutateAsync({
-            id: val.id!,
-            body: {
-              squareMeters: Number(val.squareMeters),
-              tractOwnerId: Number(val.tractOwnerId),
-              // addressId não muda aqui. Se for trocar o endereço por outro, envie addressId.
-            },
-          });
-
-          setEditRow(null);
         }}
         submitLabel="Salvar"
         loading={updateTract.isPending || updateAddr.isPending}
@@ -259,13 +288,4 @@ export default function TractsPage() {
       </Dialog>
     </>
   );
-}
-
-/* utils locais */
-function onlyDigits(s: string) {
-  return s.replace(/\D/g, "");
-}
-function maskCEP(s: string) {
-  const d = onlyDigits(s).slice(0, 8);
-  return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
 }

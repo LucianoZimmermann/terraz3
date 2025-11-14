@@ -1,5 +1,6 @@
 package com.catolica.terraz.enums;
 
 public enum EntityType {
-    TRACT
+    TRACT,
+    ADDRESS
 }
