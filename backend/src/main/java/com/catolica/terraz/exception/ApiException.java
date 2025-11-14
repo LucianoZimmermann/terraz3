@@ -1,8 +1,8 @@
 package com.catolica.terraz.exception;
 
-public abstract class BusinessException extends RuntimeException {
+public abstract class ApiException extends RuntimeException {
     private final String code;
-    protected BusinessException(String code, String message) {
+    protected ApiException(String code, String message) {
         super(message);
         this.code = code;
     }
