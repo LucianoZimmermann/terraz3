@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTractOwners } from "../queries";
 import {
+  useCreateTractOwner,
   useDeleteTractOwner,
   useDeleteTractOwnerCascade,
   useUpdateTractOwner,
@@ -41,9 +42,12 @@ import {
   useOwnerDeletionOpen,
   useProblemStore,
 } from "../../../common/state/problem.store";
+import { EntityAddModal } from "../../../common/atomic/organisms/EntityAddModal";
 
 export default function TractOwnersPage() {
   const { data, isLoading, isError } = useTractOwners();
+
+  const createOwner = useCreateTractOwner();
   const updateOwner = useUpdateTractOwner();
   const deleteOwner = useDeleteTractOwner();
   const deleteOwnerCascade = useDeleteTractOwnerCascade();
@@ -54,6 +58,7 @@ export default function TractOwnersPage() {
   const clearProblem = useProblemStore((s) => s.clear);
 
   const [editRow, setEditRow] = useState<TractOwner | null>(null);
+  const [openCreate, setOpenCreate] = useState(false);
 
   function digits(s: string) {
     return s.replace(/\D/g, "");
@@ -123,8 +128,11 @@ export default function TractOwnersPage() {
           </Stack>
         )}
         paperVariant="glass"
+        onAddClick={() => setOpenCreate(true)}
+        addButtonLabel="Novo Dono"
       />
 
+      {/* Modal de edição */}
       <EntityEditModal<TractOwner>
         open={!!editRow}
         title="Editar Dono de Terreno"
@@ -139,6 +147,25 @@ export default function TractOwnersPage() {
         }
         submitLabel="Salvar"
         loading={updateOwner.isPending}
+      />
+
+      <EntityAddModal<TractOwner>
+        open={openCreate}
+        title="Novo Dono de Terreno"
+        initialData={{ name: "", cpf: "" } as Partial<TractOwner>}
+        fields={fields}
+        onClose={() => setOpenCreate(false)}
+        onSubmit={(val) =>
+          createOwner.mutate(
+            {
+              name: val.name,
+              cpf: val.cpf,
+            },
+            { onSuccess: () => setOpenCreate(false) },
+          )
+        }
+        submitLabel="Salvar"
+        loading={createOwner.isPending}
       />
 
       <Dialog open={open} onClose={clearProblem} fullWidth maxWidth="sm">

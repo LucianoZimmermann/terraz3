@@ -10,7 +10,7 @@ import TractsPage from "../features/tract/components/page";
 import ThirdPartiesPage from "../features/third_party/components/page";
 import NeighborhoodsPage from "../features/neighborhood/components/page";
 import QuotesPage from "../features/quotation/components/page";
-import { Welcome } from "../common/atomic/organisms/Welcome";
+import CreateQuotesPage from "../features/quotation/components/createPage";
 
 export function makeRouter(shellProps: {
   mode: "dark" | "light";
@@ -27,7 +27,7 @@ export function makeRouter(shellProps: {
   const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/",
-    component: Welcome,
+    component: QuotesPage,
   });
 
   const tractOwnersRoute = createRoute({
@@ -60,6 +60,12 @@ export function makeRouter(shellProps: {
     component: QuotesPage,
   });
 
+  const createQuoteRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/create-quote",
+    component: CreateQuotesPage,
+  });
+
   const routeTree = rootRoute.addChildren([
     indexRoute,
     tractOwnersRoute,
@@ -67,6 +73,7 @@ export function makeRouter(shellProps: {
     thirdPartyRoute,
     neighborhoodRoute,
     quotesRoute,
+    createQuoteRoute,
   ]);
   return createRouter({ routeTree });
 }

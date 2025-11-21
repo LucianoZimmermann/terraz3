@@ -31,4 +31,9 @@ public class TractController {
     TractDTO updatedTract = tractService.updateTract(tractDTO);
     return ResponseEntity.ok(updatedTract);
   }
+
+  @DeleteMapping("/{id}")
+  public void deleteTract(@PathVariable Long id){
+    tractService.deleteTract(id);
+  }
 }

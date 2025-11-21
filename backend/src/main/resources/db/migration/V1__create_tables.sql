@@ -17,15 +17,6 @@ CREATE TABLE neighborhoods (
                                CONSTRAINT neighborhoods_price_factor_nonneg CHECK (price_factor >= 0)
 );
 
-CREATE TABLE addresses (
-                           id SERIAL PRIMARY KEY,
-                           street VARCHAR(255),
-                           number VARCHAR(255),
-                           city VARCHAR(255),
-                           state VARCHAR(255),
-                           cep VARCHAR(20),
-                           neighborhood_id INT NOT NULL REFERENCES neighborhoods(id)
-);
 
 CREATE TABLE tract_owners (
                               id SERIAL PRIMARY KEY,
@@ -36,8 +27,13 @@ CREATE TABLE tract_owners (
 CREATE TABLE tracts (
                         id SERIAL PRIMARY KEY,
                         square_meters NUMERIC NOT NULL,
-                        address_id INT REFERENCES addresses(id) ON DELETE CASCADE,
                         tract_owner_id INT REFERENCES tract_owners(id)
+                        street VARCHAR(255),
+                        number VARCHAR(255),
+                        city VARCHAR(255),
+                        state VARCHAR(255),
+                        cep VARCHAR(20),
+                        neighborhood_id INT NOT NULL REFERENCES neighborhoods(id)
 );
 
 CREATE TABLE quotes (

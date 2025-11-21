@@ -8,6 +8,7 @@ import {
   Typography,
   Stack,
   CircularProgress,
+  Button, // <-- novo import
 } from "@mui/material";
 import { ReactNode, useMemo } from "react";
 
@@ -32,6 +33,8 @@ type Props<T extends Record<string, any>> = {
   paperVariant?: "elevation" | "outlined" | "glass";
   size?: "small" | "medium";
   omitKeysAuto?: Array<keyof T>;
+  onAddClick?: () => void;
+  addButtonLabel?: string;
 };
 
 function toHeader(label: string) {
@@ -56,6 +59,8 @@ export function EntityTable<T extends Record<string, any>>({
   paperVariant = "outlined",
   size = "small",
   omitKeysAuto = [],
+  onAddClick,
+  addButtonLabel = "Adicionar",
 }: Props<T>) {
   const rows = data ?? [];
 
@@ -84,7 +89,21 @@ export function EntityTable<T extends Record<string, any>>({
 
   return (
     <Stack spacing={2}>
-      {title && <Typography variant="h5">{title}</Typography>}
+      {title && (
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography variant="h5">{title}</Typography>
+          {onAddClick && (
+            <Button variant="contained" size="small" onClick={onAddClick}>
+              {addButtonLabel}
+            </Button>
+          )}
+        </Stack>
+      )}
+
       <Paper
         variant={paperVariant as any}
         sx={{ width: "100%", overflowX: "auto" }}

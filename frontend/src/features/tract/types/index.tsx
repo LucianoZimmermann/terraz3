@@ -11,7 +11,7 @@ export type Tract = {
 
 export type TractCreateDTO = {
   squareMeters: number;
-  addressId?: number;
+  adress?: Address;
   tractOwnerId?: number;
 };
 

@@ -8,7 +8,7 @@ export const useCreateThirdParty = () => {
   const qc = useQueryClient();
   return useMutation<ThirdParty, AppError, ThirdPartyCreateDTO>({
     mutationFn: createThirdParty,
-    onSuccess: () => qc.invalidateQueries({ queryKey: keys.all }),
+    onSuccess: () => qc.removeQueries({ queryKey: keys.all }),
   });
 };
 
@@ -20,7 +20,7 @@ export const useUpdateThirdParty = () => {
     { id: number; body: ThirdPartyUpdateDTO }
   >({
     mutationFn: ({ id, body }) => updateThirdParty(id, body),
-    onSuccess: () => qc.invalidateQueries({ queryKey: keys.all }),
+    onSuccess: () => qc.removeQueries({ queryKey: keys.all }),
   });
 };
 

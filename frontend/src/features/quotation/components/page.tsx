@@ -9,9 +9,12 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useQuotes } from "../queries";
 import { Quote } from "../types";
 import { renderQuoteFeasibility } from "../../../common/utils";
+import { useNavigate } from "@tanstack/react-router";
 
 export default function QuotesPage() {
   const { data, isLoading, isError } = useQuotes();
+
+  const navigate = useNavigate();
 
   function onEdit(id: number) {
     // abrir modal, navegar, etc.
@@ -80,6 +83,10 @@ export default function QuotesPage() {
         </Stack>
       )}
       paperVariant="glass"
+      onAddClick={() => {
+        navigate({ to: "/create-quote" });
+      }}
+      addButtonLabel="Nova Cotação"
     />
   );
 }

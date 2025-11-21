@@ -23,6 +23,12 @@ import {
   EntityEditModal,
   FieldDef,
 } from "../../../common/atomic/organisms/EntityEditModal";
+import { EntityAddModal } from "../../../common/atomic/organisms/EntityAddModal";
+import {
+  useCreateNeighborhood,
+  useDeleteNeighborhood,
+  useUpdateNeighborhood,
+} from "../mutations";
 
 type NeighborhoodForm = {
   id?: number;
@@ -33,11 +39,13 @@ type NeighborhoodForm = {
 export default function NeighborhoodsPage() {
   const { data, isLoading, isError } = useNeighborhoods();
 
+  const createNeighborhood = useCreateNeighborhood();
   const updNeighborhood = useUpdateNeighborhood();
   const delNeighborhood = useDeleteNeighborhood();
 
   const [editRow, setEditRow] = useState<Neighborhood | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [openCreate, setOpenCreate] = useState(false);
 
   function onEdit(id: number) {
     const row = data?.find((n) => n.id === id) ?? null;
@@ -127,6 +135,30 @@ export default function NeighborhoodsPage() {
           </Stack>
         )}
         paperVariant="glass"
+        onAddClick={() => setOpenCreate(true)}
+        addButtonLabel="Novo Bairro"
+      />
+
+      <EntityAddModal<NeighborhoodForm>
+        open={openCreate}
+        title="Novo Bairro"
+        initialData={{
+          name: "",
+          priceFactor: "",
+        }}
+        fields={fields}
+        onClose={() => setOpenCreate(false)}
+        onSubmit={(val) =>
+          createNeighborhood.mutate(
+            {
+              name: val.name!,
+              priceFactor: Number(val.priceFactor),
+            },
+            { onSuccess: () => setOpenCreate(false) },
+          )
+        }
+        submitLabel="Salvar"
+        loading={createNeighborhood.isPending}
       />
 
       <EntityEditModal<NeighborhoodForm>

@@ -1,9 +1,5 @@
-import { useMemo, useState } from "react";
-import {
-  ColumnDef,
-  EntityTable,
-} from "../../../common/atomic/organisms/EntityTable";
-import IconBtn from "../../../common/atomic/atoms/buttons/IconButton";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   Button,
   Dialog,
@@ -15,35 +11,38 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { keys, useTracts } from "../queries";
-import { Tract, TractForm } from "../types";
+import { useMemo, useState } from "react";
+import IconBtn from "../../../common/atomic/atoms/buttons/IconButton";
 import {
   EntityEditModal,
   FieldDef,
 } from "../../../common/atomic/organisms/EntityEditModal";
-import { useUpdateTract, useDeleteTract } from "../mutations";
+import {
+  ColumnDef,
+  EntityTable,
+} from "../../../common/atomic/organisms/EntityTable";
+import { EntityAddModal } from "../../../common/atomic/organisms/EntityAddModal";
 import { useTractOwners } from "../../tract_owner/queries";
-
-import { useUpdateAddress } from "../../address/mutations";
+import { useCreateTract, useDeleteTract, useUpdateTract } from "../mutations";
+import { useTracts } from "../queries";
+import { Tract, TractForm } from "../types";
 import { maskCEP, onlyDigits } from "../../../common/utils";
+import { useUpdateAddress } from "../../address/mutations";
 import { useNeighborhoods } from "../../neighborhood/queries";
-import { useQueryClient } from "@tanstack/react-query";
 
 export default function TractsPage() {
-  const qc = useQueryClient();
-
   const { data, isLoading, isError } = useTracts();
   const { data: owners = [] } = useTractOwners();
   const { data: neighborhoods = [] } = useNeighborhoods();
+
+  const createTract = useCreateTract();
   const updateTract = useUpdateTract();
   const deleteTract = useDeleteTract();
-
   const updateAddr = useUpdateAddress();
 
   const [editRow, setEditRow] = useState<Tract | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [openCreate, setOpenCreate] = useState(false);
 
   const columns: Array<ColumnDef<Tract>> = [
     { key: "squareMeters", header: "Metros quadrados" },
@@ -211,6 +210,40 @@ export default function TractsPage() {
           </Stack>
         )}
         paperVariant="glass"
+        onAddClick={() => setOpenCreate(true)}
+        addButtonLabel="Novo Terreno"
+      />
+
+      <EntityAddModal<TractForm>
+        open={openCreate}
+        title="Novo Terreno"
+        initialData={
+          {
+            squareMeters: "",
+            street: "",
+            city: "",
+            cep: "",
+            neighborhoodId: "",
+            tractOwnerId: "",
+          } as Partial<TractForm>
+        }
+        fields={fields}
+        onClose={() => setOpenCreate(false)}
+        onSubmit={(val) =>
+          createTract.mutate(
+            {
+              squareMeters: Number(val.squareMeters),
+              street: val.street!,
+              city: val.city!,
+              cep: onlyDigits(val.cep!),
+              neighborhoodId: Number(val.neighborhoodId),
+              tractOwnerId: Number(val.tractOwnerId),
+            },
+            { onSuccess: () => setOpenCreate(false) },
+          )
+        }
+        submitLabel="Salvar"
+        loading={createTract.isPending}
       />
 
       <EntityEditModal<TractForm>
@@ -220,11 +253,13 @@ export default function TractsPage() {
         fields={fields}
         onClose={() => setEditRow(null)}
         onSubmit={async (val) => {
+          if (!editRow) return;
+
           try {
-            const addrId = editRow?.address?.id;
+            const addrId = editRow.address?.id;
 
             if (addrId) {
-              updateAddr.mutate({
+              await updateAddr.mutateAsync({
                 id: addrId,
                 body: {
                   street: val.street!,
@@ -233,14 +268,9 @@ export default function TractsPage() {
                   cep: onlyDigits(val.cep!),
                 },
               });
-              await qc.invalidateQueries({
-                queryKey: keys.lists,
-                exact: false,
-                refetchType: "active",
-              });
             }
 
-            updateTract.mutate({
+            await updateTract.mutateAsync({
               id: val.id!,
               body: {
                 squareMeters: Number(val.squareMeters),

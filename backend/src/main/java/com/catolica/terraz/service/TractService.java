@@ -64,4 +64,9 @@ public class TractService {
     Tract saved = tractRepository.save(existing);
     return modelMapper.map(saved, TractDTO.class);
   }
+
+  public void deleteTract(Long id){
+    tractRepository.deleteById(id);
+  }
+
 }

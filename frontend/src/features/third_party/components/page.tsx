@@ -26,7 +26,12 @@ import {
   EntityEditModal,
   FieldDef,
 } from "../../../common/atomic/organisms/EntityEditModal";
-import { useDeleteThirdParty, useUpdateThirdParty } from "../mutations";
+import { EntityAddModal } from "../../../common/atomic/organisms/EntityAddModal";
+import {
+  useCreateThirdParty,
+  useDeleteThirdParty,
+  useUpdateThirdParty,
+} from "../mutations";
 import { useFactorTypes } from "../../factor_type/queries";
 
 type ThirdPartyForm = {
@@ -40,11 +45,13 @@ export default function ThirdPartiesPage() {
   const { data, isLoading, isError } = useThirdParties();
   const { data: factorTypes = [] } = useFactorTypes();
 
+  const createThirdParty = useCreateThirdParty();
   const updThirdParty = useUpdateThirdParty();
   const delThirdParty = useDeleteThirdParty();
 
   const [editRow, setEditRow] = useState<ThirdParty | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [openCreate, setOpenCreate] = useState(false);
 
   function onEdit(id: number) {
     setEditRow(data?.find((tp) => tp.id === id) ?? null);
@@ -150,6 +157,32 @@ export default function ThirdPartiesPage() {
           </Stack>
         )}
         paperVariant="glass"
+        onAddClick={() => setOpenCreate(true)}
+        addButtonLabel="Novo Terceiro"
+      />
+
+      <EntityAddModal<ThirdPartyForm>
+        open={openCreate}
+        title="Novo Terceiro"
+        initialData={{
+          name: "",
+          cnpj: "",
+          factorTypeId: "",
+        }}
+        fields={fields}
+        onClose={() => setOpenCreate(false)}
+        onSubmit={(val) =>
+          createThirdParty.mutate(
+            {
+              name: val.name,
+              cnpj: val.cnpj,
+              factorTypeId: Number(val.factorTypeId),
+            },
+            { onSuccess: () => setOpenCreate(false) },
+          )
+        }
+        submitLabel="Salvar"
+        loading={createThirdParty.isPending}
       />
 
       <EntityEditModal<ThirdPartyForm>
@@ -158,19 +191,22 @@ export default function ThirdPartiesPage() {
         data={editData as Partial<ThirdPartyForm>}
         fields={fields}
         onClose={() => setEditRow(null)}
-        onSubmit={(val) =>
-          updThirdParty.mutate(
-            {
+        onSubmit={async (val) => {
+          if (!editRow) return;
+          try {
+            await updThirdParty.mutateAsync({
               id: val.id!,
               body: {
                 name: val.name!,
                 cnpj: val.cnpj!,
                 factorTypeId: Number(val.factorTypeId),
               },
-            },
-            { onSuccess: () => setEditRow(null) },
-          )
-        }
+            });
+            setEditRow(null);
+          } catch (error) {
+            alert("Falha ao atualizar terceiro: " + error);
+          }
+        }}
         submitLabel="Salvar"
         loading={updThirdParty.isPending}
       />
