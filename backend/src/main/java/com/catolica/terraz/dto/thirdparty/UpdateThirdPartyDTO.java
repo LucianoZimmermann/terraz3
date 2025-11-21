@@ -1,0 +1,4 @@
+package com.catolica.terraz.dto.thirdparty;
+
+public class UpdateThirdPartyDTO {
+}
