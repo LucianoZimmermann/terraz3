@@ -21,9 +21,13 @@ public class ThirdParty {
   @Column(nullable = false)
   private String name;
 
+  private String cnpj;
+
   @NotNull
   @Column(nullable = false)
-  private String cnpj;
+  private String phone;
+
+  private String contactName;
 
   @NotNull
   @ManyToOne

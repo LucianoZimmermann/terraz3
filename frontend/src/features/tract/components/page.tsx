@@ -27,7 +27,6 @@ import { useCreateTract, useDeleteTract, useUpdateTract } from "../mutations";
 import { useTracts } from "../queries";
 import { Tract, TractForm } from "../types";
 import { maskCEP, onlyDigits } from "../../../common/utils";
-import { useUpdateAddress } from "../../address/mutations";
 import { useNeighborhoods } from "../../neighborhood/queries";
 
 export default function TractsPage() {
@@ -38,7 +37,6 @@ export default function TractsPage() {
   const createTract = useCreateTract();
   const updateTract = useUpdateTract();
   const deleteTract = useDeleteTract();
-  const updateAddr = useUpdateAddress();
 
   const [editRow, setEditRow] = useState<Tract | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -47,14 +45,17 @@ export default function TractsPage() {
   const columns: Array<ColumnDef<Tract>> = [
     { key: "squareMeters", header: "Metros quadrados" },
     {
-      key: "address",
+      key: "city",
       header: "Endereço",
-      render: (r) => `${r.address?.street ?? ""}, ${r.address?.city ?? ""}`,
+      render: (r) =>
+        `${r?.street ?? ""}${
+          r?.number ? `, ${r.number}` : ""
+        } - ${r?.city ?? ""}${r?.state ? `/${r.state}` : ""}`,
     },
     {
       key: "neighborhood" as keyof Tract,
       header: "Bairro",
-      render: (r) => `${r.address?.neighborhood?.name ?? "-"}`,
+      render: (r) => `${r?.neighborhood?.name ?? "-"}`,
     },
     {
       key: "tractOwner",
@@ -77,10 +78,12 @@ export default function TractsPage() {
     return {
       id: editRow.id,
       squareMeters: editRow.squareMeters ?? "",
-      street: editRow.address?.street ?? "",
-      city: editRow.address?.city ?? "",
-      cep: editRow.address?.cep ?? "",
-      neighborhoodId: editRow.address?.neighborhood?.id ?? "",
+      street: editRow.street ?? "",
+      number: editRow.number ?? "",
+      city: editRow.city ?? "",
+      state: editRow.state ?? "",
+      cep: editRow.cep ?? "",
+      neighborhoodId: editRow.neighborhood?.id ?? "",
       tractOwnerId: editRow.tractOwner?.id ?? "",
     };
   }, [editRow]);
@@ -118,6 +121,19 @@ export default function TractsPage() {
       ),
     },
     {
+      key: "number",
+      label: "Número",
+      required: true,
+      render: ({ value, set }) => (
+        <TextField
+          fullWidth
+          label="Número"
+          value={value ?? ""}
+          onChange={(e) => set(e.target.value)}
+        />
+      ),
+    },
+    {
       key: "city",
       label: "Cidade",
       required: true,
@@ -125,6 +141,19 @@ export default function TractsPage() {
         <TextField
           fullWidth
           label="Cidade"
+          value={value ?? ""}
+          onChange={(e) => set(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: "state",
+      label: "Estado",
+      required: true,
+      render: ({ value, set }) => (
+        <TextField
+          fullWidth
+          label="Estado"
           value={value ?? ""}
           onChange={(e) => set(e.target.value)}
         />
@@ -221,7 +250,9 @@ export default function TractsPage() {
           {
             squareMeters: "",
             street: "",
+            number: "",
             city: "",
+            state: "",
             cep: "",
             neighborhoodId: "",
             tractOwnerId: "",
@@ -234,7 +265,9 @@ export default function TractsPage() {
             {
               squareMeters: Number(val.squareMeters),
               street: val.street!,
+              number: val.number ?? "",
               city: val.city!,
+              state: val.state ?? "",
               cep: onlyDigits(val.cep!),
               neighborhoodId: Number(val.neighborhoodId),
               tractOwnerId: Number(val.tractOwnerId),
@@ -256,25 +289,17 @@ export default function TractsPage() {
           if (!editRow) return;
 
           try {
-            const addrId = editRow.address?.id;
-
-            if (addrId) {
-              await updateAddr.mutateAsync({
-                id: addrId,
-                body: {
-                  street: val.street!,
-                  city: val.city!,
-                  neighborhoodId: Number(val.neighborhoodId!),
-                  cep: onlyDigits(val.cep!),
-                },
-              });
-            }
-
             await updateTract.mutateAsync({
               id: val.id!,
               body: {
                 squareMeters: Number(val.squareMeters),
                 tractOwnerId: Number(val.tractOwnerId),
+                street: val.street!,
+                number: val.number ?? "",
+                city: val.city!,
+                state: val.state ?? "",
+                cep: onlyDigits(val.cep!),
+                neighborhoodId: Number(val.neighborhoodId),
               },
             });
 
@@ -284,7 +309,7 @@ export default function TractsPage() {
           }
         }}
         submitLabel="Salvar"
-        loading={updateTract.isPending || updateAddr.isPending}
+        loading={updateTract.isPending}
       />
 
       <Dialog

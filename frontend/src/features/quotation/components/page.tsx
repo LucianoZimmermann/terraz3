@@ -29,8 +29,7 @@ export default function QuotesPage() {
     {
       key: "tract",
       header: "Terreno",
-      render: (row) =>
-        row.tract.address.street + ", " + row.tract.address.neighborhood.name,
+      render: (row) => row.tract.street + ", " + row.tract.neighborhood.name,
     },
     {
       key: "lotCount",

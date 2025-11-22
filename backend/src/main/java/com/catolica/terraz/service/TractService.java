@@ -1,11 +1,12 @@
 package com.catolica.terraz.service;
 
 import com.catolica.terraz.dto.TractDTO;
+import com.catolica.terraz.dto.tract.TractCreateDTO;
 import com.catolica.terraz.enums.EntityType;
 import com.catolica.terraz.exception.ExceptionHelper;
-import com.catolica.terraz.model.Address;
+import com.catolica.terraz.model.Neighborhood;
 import com.catolica.terraz.model.Tract;
-import com.catolica.terraz.repository.AddressRepository;
+import com.catolica.terraz.model.TractOwner;
 import com.catolica.terraz.repository.TractOwnerRepository;
 import com.catolica.terraz.repository.TractRepository;
 import java.util.List;
@@ -20,13 +21,30 @@ import org.springframework.transaction.annotation.Transactional;
 public class TractService {
 
   private final TractRepository tractRepository;
-  private final AddressRepository addressRepository;
   private final TractOwnerRepository tractOwnerRepository;
   private final ModelMapper modelMapper;
 
-  public TractDTO saveTract(TractDTO tractDTO) {
-    Tract tract = modelMapper.map(tractDTO, Tract.class);
+  public TractDTO saveTract(TractCreateDTO dto) {
+    Tract tract = new Tract();
+    tract.setSquareMeters(dto.getSquareMeters());
+    tract.setStreet(dto.getStreet());
+    tract.setNumber(dto.getNumber());
+    tract.setCity(dto.getCity());
+    tract.setState(dto.getState());
+    tract.setCep(dto.getCep());
+
+    if (dto.getTractOwnerId() != null) {
+      TractOwner owner = new TractOwner();
+      owner.setId(dto.getTractOwnerId());
+      tract.setTractOwner(owner);
+    }
+
+    Neighborhood neighborhood = new Neighborhood();
+    neighborhood.setId(dto.getNeighborhoodId());
+    tract.setNeighborhood(neighborhood);
+
     tractRepository.save(tract);
+
     return modelMapper.map(tract, TractDTO.class);
   }
 
@@ -43,14 +61,6 @@ public class TractService {
 
     if (dto.getSquareMeters() != null) {
       existing.setSquareMeters(dto.getSquareMeters());
-    }
-
-    if (dto.getAddress() != null && dto.getAddress().getId() != null) {
-      Long newId = dto.getAddress().getId();
-      Long cur = existing.getAddress() != null ? existing.getAddress().getId() : null;
-      if (!java.util.Objects.equals(cur, newId)) {
-        existing.setAddress(addressRepository.getReferenceById(newId));
-      }
     }
 
     if (dto.getTractOwner() != null && dto.getTractOwner().getId() != null) {

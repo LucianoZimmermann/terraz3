@@ -11,5 +11,6 @@ public class UpdateThirdPartyDTO {
     private Long id;
     private String name;
     private String cnpj;
+    private String phone;
     private Long factorTypeId;
 }

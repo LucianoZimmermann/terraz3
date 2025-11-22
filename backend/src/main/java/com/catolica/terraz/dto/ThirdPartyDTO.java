@@ -11,5 +11,7 @@ public class ThirdPartyDTO {
   private Long id;
   private String name;
   private String cnpj;
+  private String phone;
+  private String contactName;
   private FactorTypeDTO factorType;
 }

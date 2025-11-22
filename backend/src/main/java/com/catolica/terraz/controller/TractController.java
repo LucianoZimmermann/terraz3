@@ -1,6 +1,7 @@
 package com.catolica.terraz.controller;
 
 import com.catolica.terraz.dto.TractDTO;
+import com.catolica.terraz.dto.tract.TractCreateDTO;
 import com.catolica.terraz.service.TractService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ public class TractController {
   private final TractService tractService;
 
   @PostMapping
-  public ResponseEntity<TractDTO> saveTract(@RequestBody TractDTO tractDTO) {
+  public ResponseEntity<TractDTO> saveTract(@RequestBody TractCreateDTO tractDTO) {
     TractDTO saveTractDTO = tractService.saveTract(tractDTO);
     return ResponseEntity.ok(saveTractDTO);
   }

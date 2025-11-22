@@ -10,5 +10,7 @@ import lombok.*;
 public class CreateThirdPartyDTO {
     private String cnpj;
     private String name;
+    private String phone;
+    private String contactName;
     private Long factorTypeId;
 }

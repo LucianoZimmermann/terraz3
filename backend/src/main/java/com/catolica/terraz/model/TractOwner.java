@@ -20,4 +20,8 @@ public class TractOwner {
   @NotNull @Column private String name;
 
   @NotNull @Column private String cpf;
+
+  @NotNull
+  @Column(nullable = false)
+  private String phone;
 }

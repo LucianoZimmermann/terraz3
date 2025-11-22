@@ -37,6 +37,8 @@ import { useFactorTypes } from "../../factor_type/queries";
 type ThirdPartyForm = {
   id?: number;
   name: string;
+  contactName?: string;
+  phone?: string;
   cnpj: string;
   factorTypeId: number | "";
 };
@@ -64,6 +66,8 @@ export default function ThirdPartiesPage() {
   const columns: Array<ColumnDef<ThirdParty>> = [
     { key: "name", header: "Nome" },
     { key: "cnpj", header: "CNPJ" },
+    { key: "contactName", header: "Nome do contato" },
+    { key: "phone", header: "Telefone" },
     {
       key: "factorType",
       header: "Tipo de serviço",
@@ -103,6 +107,32 @@ export default function ThirdPartiesPage() {
         <TextField
           fullWidth
           label="CNPJ"
+          value={value ?? ""}
+          onChange={(e) => set(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: "phone",
+      label: "Telefone",
+      required: false,
+      render: ({ value, set }) => (
+        <TextField
+          fullWidth
+          label="Telefone"
+          value={value ?? ""}
+          onChange={(e) => set(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: "contactName",
+      label: "Nome do contato",
+      required: false,
+      render: ({ value, set }) => (
+        <TextField
+          fullWidth
+          label="Nome do contato"
           value={value ?? ""}
           onChange={(e) => set(e.target.value)}
         />
@@ -175,6 +205,7 @@ export default function ThirdPartiesPage() {
           createThirdParty.mutate(
             {
               name: val.name,
+              phone: val.phone,
               cnpj: val.cnpj,
               factorTypeId: Number(val.factorTypeId),
             },

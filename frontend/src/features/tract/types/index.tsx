@@ -1,24 +1,32 @@
-import { Address } from "../../address/types/index.tsx";
 import { Neighborhood } from "../../neighborhood/types/index.tsx";
 import { TractOwner } from "../../tract_owner/types/index.tsx";
 
 export type Tract = {
   id: number;
   squareMeters: number;
-  address: Address;
   tractOwner: TractOwner;
+  street?: string;
+  number?: string;
+  city?: string;
+  state?: string;
+  cep?: string;
+  neighborhood: Neighborhood;
 };
 
 export type TractCreateDTO = {
   squareMeters: number;
-  adress?: Address;
   tractOwnerId?: number;
+  street?: string;
+  number?: string;
+  city?: string;
+  state?: string;
+  cep?: string;
+  neighborhoodId: number;
 };
 
 export type TractUpdateDTO = Partial<TractCreateDTO>;
 
 export type TractListParams = {
-  addressId?: number;
   tractOwnerId?: number;
   minSquareMeters?: number;
   maxSquareMeters?: number;
@@ -30,9 +38,11 @@ export type TractListParams = {
 export type TractForm = {
   id?: number;
   squareMeters: number | "";
-  street: string;
-  city: string;
-  neighborhoodId: number | "";
-  cep: string;
   tractOwnerId: number | "";
+  street: string;
+  number: string;
+  city: string;
+  state: string;
+  cep: string;
+  neighborhoodId: number | "";
 };

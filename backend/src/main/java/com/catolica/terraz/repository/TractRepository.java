@@ -14,11 +14,14 @@ public interface TractRepository extends JpaRepository<Tract, Long> {
     void deleteByTractOwnerId(Long ownerId);
 
     @Query("""
-    select new com.catolica.terraz.dto.tract.TractAddressItem(t.id, a.street, a.cep)
+    select new com.catolica.terraz.dto.tract.TractAddressItem(
+        t.id,
+        t.street,
+        t.cep
+    )
     from Tract t
-    join t.address a
     where t.tractOwner.id = :ownerId
     order by t.id
-  """)
+""")
     List<TractAddressItem> findTractAddressesByOwnerId(@Param("ownerId") Long ownerId);
 }

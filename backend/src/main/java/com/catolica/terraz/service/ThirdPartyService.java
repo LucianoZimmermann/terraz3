@@ -13,7 +13,6 @@ import com.catolica.terraz.repository.ThirdPartyRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -32,6 +31,8 @@ public class ThirdPartyService {
     ThirdParty newThirdParty = ThirdParty.builder()
             .cnpj(thirdPartyDTO.getCnpj())
             .name(thirdPartyDTO.getName())
+            .phone(thirdPartyDTO.getPhone())
+            .contactName(thirdPartyDTO.getContactName())
             .factorType(factorType)
             .build();
     thirdPartyRepository.save(newThirdParty);
@@ -44,6 +45,8 @@ public class ThirdPartyService {
                 .id(thirdParty.getId())
                 .name(thirdParty.getName())
                 .cnpj(thirdParty.getCnpj())
+                .phone(thirdParty.getPhone())
+                .contactName(thirdParty.getContactName())
                 .factorType(FactorTypeDTO.builder().id(thirdParty.getId()).factorTypeEnum(thirdParty.getFactorType().getFactorTypeEnum()).build())
                 .build()
         ).collect(Collectors.toList());
@@ -72,6 +75,10 @@ public class ThirdPartyService {
 
     if (thirdPartyDTO.getCnpj() != null) {
       existing.setCnpj(thirdPartyDTO.getCnpj());
+    }
+
+    if (thirdPartyDTO.getPhone() != null) {
+      existing.setPhone(thirdPartyDTO.getPhone());
     }
 
     if (thirdPartyDTO.getFactorTypeId() != null) {

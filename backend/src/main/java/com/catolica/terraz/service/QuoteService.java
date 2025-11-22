@@ -20,19 +20,14 @@ import org.springframework.stereotype.Service;
 public class QuoteService {
 
   private final QuoteRepository quoteRepository;
-  private final FactorRepository factorRepository;
   private final TractRepository tractRepository;
   private final TractOwnerRepository tractOwnerRepository;
-  private final AddressRepository addressRepository;
   private final FactorService factorService;
   private final ThirdPartyRepository thirdPartyRepository;
   private final ModelMapper modelMapper;
 
   @Transactional
   public ResponseQuoteDTO saveQuote(RequestQuoteDTO quoteDTO) {
-    Address address =
-        addressRepository.saveAndFlush(
-            modelMapper.map(quoteDTO.getTract().getAddress(), Address.class));
 
     TractOwner tractOwner =
         tractOwnerRepository.saveAndFlush(
@@ -40,7 +35,6 @@ public class QuoteService {
 
     Tract tract = modelMapper.map(quoteDTO.getTract(), Tract.class);
     tract.setTractOwner(tractOwner);
-    tract.setAddress(address);
     Tract savedTract = tractRepository.saveAndFlush(tract);
 
     Quote quote =

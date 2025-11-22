@@ -84,6 +84,7 @@ export default function TractOwnersPage() {
   const columns: Array<ColumnDef<TractOwner>> = [
     { key: "name", header: "Nome" },
     { key: "cpf", header: "CPF", render: (r) => maskCPF(r.cpf) },
+    { key: "phone", header: "Telefone" },
   ];
 
   const fields: Array<FieldDef<TractOwner>> = [
@@ -132,7 +133,6 @@ export default function TractOwnersPage() {
         addButtonLabel="Novo Dono"
       />
 
-      {/* Modal de edição */}
       <EntityEditModal<TractOwner>
         open={!!editRow}
         title="Editar Dono de Terreno"
@@ -160,6 +160,7 @@ export default function TractOwnersPage() {
             {
               name: val.name,
               cpf: val.cpf,
+              phone: val.phone,
             },
             { onSuccess: () => setOpenCreate(false) },
           )
