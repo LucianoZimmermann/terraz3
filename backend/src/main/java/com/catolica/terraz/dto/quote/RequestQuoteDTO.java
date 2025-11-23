@@ -12,7 +12,6 @@ import lombok.*;
 @Builder
 public class RequestQuoteDTO {
   private Long id;
-  private TractDTO tract;
   private List<FactorDTO> factors;
   private Double lotCount;
 }
