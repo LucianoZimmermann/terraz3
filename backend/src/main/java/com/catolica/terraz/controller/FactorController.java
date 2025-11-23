@@ -24,9 +24,4 @@ public class FactorController {
     List<FactorDTO> factors = factorService.getAllFactors();
     return ResponseEntity.ok(factors);
   }
-
-  //    @GetMapping
-  //    public ResponseEntity<List<FactorTypeEnum>> getAllFactorsTypes() {
-  //        return ResponseEntity.ok(factorService.getAllFactorsTypes());
-  //    }
 }

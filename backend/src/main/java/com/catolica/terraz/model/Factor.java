@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "factors")
 @Getter
@@ -26,9 +28,7 @@ public class Factor {
   @JoinColumn(name = "third_party_id")
   private ThirdParty thirdParty;
 
-  @NotNull private Float materialCost;
-
-  @NotNull private Float laborCost;
+  @NotNull private BigDecimal price;
 
   @NotNull
   @ManyToOne

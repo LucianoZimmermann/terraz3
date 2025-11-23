@@ -1,5 +1,6 @@
 package com.catolica.terraz.dto;
 
+import com.catolica.terraz.dto.tractowner.TractOwnerDTO;
 import lombok.*;
 
 @Getter
@@ -10,6 +11,11 @@ import lombok.*;
 public class TractDTO {
   private Long id;
   private Float squareMeters;
-  private AddressDTO address;
+  private String street;
+  private String number;
+  private String city;
+  private NeighborhoodDTO neighborhood;
+  private String state;
+  private String cep;
   private TractOwnerDTO tractOwner;
 }

@@ -1,6 +1,7 @@
 package com.catolica.terraz.controller;
 
 import com.catolica.terraz.dto.TractDTO;
+import com.catolica.terraz.dto.tract.TractCreateDTO;
 import com.catolica.terraz.service.TractService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ public class TractController {
   private final TractService tractService;
 
   @PostMapping
-  public ResponseEntity<TractDTO> saveTract(@RequestBody TractDTO tractDTO) {
+  public ResponseEntity<TractDTO> saveTract(@RequestBody TractCreateDTO tractDTO) {
     TractDTO saveTractDTO = tractService.saveTract(tractDTO);
     return ResponseEntity.ok(saveTractDTO);
   }
@@ -23,5 +24,17 @@ public class TractController {
   public ResponseEntity<List<TractDTO>> getAllTract() {
     List<TractDTO> tracts = tractService.getAllTracts().stream().toList();
     return ResponseEntity.ok(tracts);
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<TractDTO> updateTract(@PathVariable Long id, @RequestBody TractDTO tractDTO){
+    tractDTO.setId(id);
+    TractDTO updatedTract = tractService.updateTract(tractDTO);
+    return ResponseEntity.ok(updatedTract);
+  }
+
+  @DeleteMapping("/{id}")
+  public void deleteTract(@PathVariable Long id){
+    tractService.deleteTract(id);
   }
 }

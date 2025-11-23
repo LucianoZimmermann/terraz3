@@ -4,6 +4,8 @@ import com.catolica.terraz.enums.FeasibilityEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.*;
@@ -21,21 +23,19 @@ public class Quote {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @NotNull
   @ManyToOne
   @JoinColumn(name = "tract_id")
   private Tract tract;
 
   @OneToMany(mappedBy = "quote", cascade = CascadeType.ALL, orphanRemoval = true)
   @NotNull
-  @Size(min = 5)
   private List<Factor> factorList;
 
-  @Column @NotNull private Double totalFactorsPrice;
+  @Column private BigDecimal totalFactorsPrice;
 
-  private Double lotCount;
+  private BigDecimal lotCount;
 
-  private Double pricePerLot;
+  private BigDecimal pricePerLot;
 
   @Enumerated(EnumType.STRING)
   private FeasibilityEnum feasibility;

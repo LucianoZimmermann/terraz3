@@ -2,6 +2,8 @@ package com.catolica.terraz.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -9,5 +11,5 @@ import lombok.*;
 @Builder
 public class PriceFactorDTO {
   private Long id;
-  private Double factor;
+  private BigDecimal factor;
 }
