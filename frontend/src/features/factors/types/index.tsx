@@ -1,4 +1,4 @@
-import { FactorType } from "../../factor_type/types/index.tsx";
+import { FactorType, FactorTypeEnum } from "../../factor_type/types/index.tsx";
 import { Quote } from "../../quotation/types";
 import { ThirdParty } from "../../third_party/types/index.tsx";
 
@@ -9,6 +9,13 @@ export type Factor = {
   materialCost: number;
   laborCost: number;
   factorType: FactorType;
+};
+
+export type CreatedFactor = {
+  factorTypeId: number;
+  type: FactorTypeEnum;
+  price: number | null;
+  thirdPartyId: number | null;
 };
 
 export type FactorCreateDTO = {

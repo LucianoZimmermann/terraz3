@@ -1,4 +1,5 @@
-import { Factor } from "../../factors/types/index.tsx";
+import { FactorType } from "../../factor_type/types/index.tsx";
+import { CreatedFactor, Factor } from "../../factors/types/index.tsx";
 import { Tract } from "../../tract/types/index.tsx";
 
 export type FeasibilityEnum = string;
@@ -14,6 +15,17 @@ export type Quote = {
   createDate: string;
 };
 
+export type CreatedQuote = {
+  id: number;
+};
+
+export type CalculatedQuote = {
+  tractId: number;
+  lotCount: number;
+  factors: CreatedFactor[];
+  totalFactorsPrice: number;
+};
+
 export type QuoteFactorInput = {
   thirdPartyId: number;
   materialCost: number;
@@ -21,15 +33,13 @@ export type QuoteFactorInput = {
   factorTypeId: number;
 };
 
-export type QuoteCreateDTO = {
-  tractId: number;
+export type CreateQuoteDTO = {
   factorList: QuoteFactorInput[];
   lotCount?: number;
   pricePerLot?: number;
-  feasibility?: FeasibilityEnum;
 };
 
-export type QuoteUpdateDTO = Partial<Omit<QuoteCreateDTO, "tractId">>;
+export type UpdateQuoteDTO = Partial<Omit<Quote, "tractId">>;
 
 export type QuoteListParams = {
   tractId?: number;

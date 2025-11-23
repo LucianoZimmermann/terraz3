@@ -1,7 +1,8 @@
-package com.catolica.terraz.dto.request;
+package com.catolica.terraz.dto.quote;
 
 import com.catolica.terraz.dto.FactorDTO;
-import com.catolica.terraz.dto.TractDTO;
+
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.*;
 
@@ -13,5 +14,5 @@ import lombok.*;
 public class RequestQuoteDTO {
   private Long id;
   private List<FactorDTO> factors;
-  private Double lotCount;
+  private BigDecimal lotCount;
 }

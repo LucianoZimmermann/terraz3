@@ -1,13 +1,29 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { keys } from "../queries";
-import { Quote, QuoteCreateDTO } from "../types";
+import { CalculatedQuote, CreatedQuote, CreateQuoteDTO, Quote } from "../types";
 import { AppError } from "../../../common/api/types/AppError";
-import { createQuote } from "../api";
+import { createQuote, deleteQuote, updateQuote } from "../api";
 
 export const useCreateQuote = () => {
   const qc = useQueryClient();
-  useMutation<Quote, AppError, QuoteCreateDTO>({
+  return useMutation<CreatedQuote, AppError, CreateQuoteDTO>({
     mutationFn: createQuote,
-    onSuccess: () => qc.invalidateQueries({ queryKey: keys.all }),
+    onSuccess: () => qc.removeQueries({ queryKey: keys.all }),
+  });
+};
+
+export const useUpdateQuote = () => {
+  const qc = useQueryClient();
+  return useMutation<Quote, AppError, { id: number; body: CalculatedQuote }>({
+    mutationFn: ({ id, body }) => updateQuote(id, body),
+    onSuccess: () => qc.removeQueries({ queryKey: keys.all }),
+  });
+};
+
+export const useDeleteQuote = () => {
+  const qc = useQueryClient();
+  return useMutation<void, AppError, number>({
+    mutationFn: deleteQuote,
+    onSuccess: () => qc.removeQueries({ queryKey: keys.all }),
   });
 };

@@ -41,7 +41,7 @@ import {
   useOwnerDeletionConflict,
   useOwnerDeletionOpen,
   useProblemStore,
-} from "../../../common/state/problem.store";
+} from "../../../common/store/problem.store";
 import { EntityAddModal } from "../../../common/atomic/organisms/EntityAddModal";
 
 export default function TractOwnersPage() {

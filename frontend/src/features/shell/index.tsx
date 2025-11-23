@@ -45,11 +45,16 @@ export function Shell({
   onToggleTheme: () => void;
 }) {
   const [open, setOpen] = useState(false);
-
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ width: "100%", display: "grid", placeItems: "center" }}>
+    <Box
+      sx={{
+        width: "100%",
+        minHeight: "100vh",
+        display: "flex",
+      }}
+    >
       <AppBar
         position="fixed"
         variant="glass"
@@ -121,10 +126,23 @@ export function Shell({
           p: 3,
           ml: open ? `${DRAWER_W}px` : `${MINI_W}px`,
           transition: "margin 200ms",
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+          boxSizing: "border-box",
         }}
       >
         <Toolbar />
-        {children}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+          }}
+        >
+          {children}
+        </Box>
       </Box>
     </Box>
   );

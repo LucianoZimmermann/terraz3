@@ -10,9 +10,17 @@ import { useQuotes } from "../queries";
 import { Quote } from "../types";
 import { renderQuoteFeasibility } from "../../../common/utils";
 import { useNavigate } from "@tanstack/react-router";
+import { useCreateQuote, useDeleteQuote } from "../mutations";
+import { useCreatedQuote } from "../../../common/store/createdQuote.store";
+import { useEffect } from "react";
+import { on } from "events";
 
 export default function QuotesPage() {
   const { data, isLoading, isError } = useQuotes();
+  const createQuote = useCreateQuote();
+  const setCreatedQuoteId = useCreatedQuote((s) => s.setCreatedQuoteId);
+  const deleteQuote = useDeleteQuote();
+  // const [deleteQuote, setDeleteQuote] = useState<>(false);
 
   const navigate = useNavigate();
 
@@ -22,8 +30,26 @@ export default function QuotesPage() {
   }
 
   function onDelete(id: number) {
-    // abrir modal de confirmação, etc.
+    deleteQuote.mutateAsync(id);
   }
+
+  // useEffect((() => {deletar a cotação caso deseja demonstado }), [deleteQuote]);
+  //const deleteQuoteOnExit = useCallback(() => {
+  //  if (deleteQuote) {
+  //    deleteQuote.mutateAsync(id);
+  //  }
+  //}, [deleteQuote]);
+
+  const onAddQuote = async () => {
+    const response = await createQuote.mutateAsync({
+      factorList: [],
+      lotCount: 0,
+      pricePerLot: 0,
+    });
+
+    setCreatedQuoteId(response.id);
+    navigate({ to: "/create-quote" });
+  };
 
   const columns: Array<ColumnDef<Quote>> = [
     {
@@ -82,9 +108,7 @@ export default function QuotesPage() {
         </Stack>
       )}
       paperVariant="glass"
-      onAddClick={() => {
-        navigate({ to: "/create-quote" });
-      }}
+      onAddClick={onAddQuote}
       addButtonLabel="Nova Cotação"
     />
   );

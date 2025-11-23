@@ -59,6 +59,5 @@ CREATE TABLE IF NOT EXISTS factors (
                          id SERIAL PRIMARY KEY,
                          quote_id INT NOT NULL REFERENCES quotes(id) ON DELETE CASCADE,
                          third_party_id INT REFERENCES third_parties(id),
-                         material_cost NUMERIC NOT NULL,
-                         labor_cost NUMERIC NOT NULL
+                         price NUMERIC NOT NULL
 );

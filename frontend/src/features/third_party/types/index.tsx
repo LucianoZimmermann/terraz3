@@ -30,3 +30,12 @@ export type ThirdPartyListParams = {
   size?: number;
   sort?: string;
 };
+
+export type ThirdPartyForm = {
+  id?: number;
+  name: string;
+  contactName?: string;
+  phone?: string;
+  cnpj: string;
+  factorTypeId: number | "";
+};

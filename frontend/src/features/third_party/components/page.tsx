@@ -1,55 +1,36 @@
-import { useMemo, useState } from "react";
-import {
-  ColumnDef,
-  EntityTable,
-} from "../../../common/atomic/organisms/EntityTable";
-import IconBtn from "../../../common/atomic/atoms/buttons/IconButton";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  MenuItem,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import { useMemo, useState } from "react";
+import IconBtn from "../../../common/atomic/atoms/buttons/IconButton";
+import { EntityTable } from "../../../common/atomic/organisms/EntityTable";
 
 import { useThirdParties } from "../queries";
-import { ThirdParty } from "../types";
-import { renderFactorType } from "../../../common/utils";
+import { ThirdParty, ThirdPartyForm } from "../types";
 
-import {
-  EntityEditModal,
-  FieldDef,
-} from "../../../common/atomic/organisms/EntityEditModal";
 import { EntityAddModal } from "../../../common/atomic/organisms/EntityAddModal";
+import { EntityEditModal } from "../../../common/atomic/organisms/EntityEditModal";
 import {
   useCreateThirdParty,
   useDeleteThirdParty,
   useUpdateThirdParty,
 } from "../mutations";
-import { useFactorTypes } from "../../factor_type/queries";
-
-type ThirdPartyForm = {
-  id?: number;
-  name: string;
-  contactName?: string;
-  phone?: string;
-  cnpj: string;
-  factorTypeId: number | "";
-};
-
+import { columns, useThirdPartyFields } from "../utils";
 export default function ThirdPartiesPage() {
   const { data, isLoading, isError } = useThirdParties();
-  const { data: factorTypes = [] } = useFactorTypes();
 
   const createThirdParty = useCreateThirdParty();
   const updThirdParty = useUpdateThirdParty();
   const delThirdParty = useDeleteThirdParty();
+  const fields = useThirdPartyFields();
 
   const [editRow, setEditRow] = useState<ThirdParty | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -63,18 +44,6 @@ export default function ThirdPartiesPage() {
     setDeleteId(id);
   }
 
-  const columns: Array<ColumnDef<ThirdParty>> = [
-    { key: "name", header: "Nome" },
-    { key: "cnpj", header: "CNPJ" },
-    { key: "contactName", header: "Nome do contato" },
-    { key: "phone", header: "Telefone" },
-    {
-      key: "factorType",
-      header: "Tipo de serviço",
-      render: (r) => renderFactorType(r.factorType?.factorTypeEnum),
-    },
-  ];
-
   const editData: Partial<ThirdPartyForm> = useMemo(() => {
     if (!editRow) return {};
     return {
@@ -84,83 +53,6 @@ export default function ThirdPartiesPage() {
       factorTypeId: editRow.factorType?.id ?? "",
     };
   }, [editRow]);
-
-  const fields: Array<FieldDef<ThirdPartyForm>> = [
-    {
-      key: "name",
-      label: "Nome",
-      required: true,
-      render: ({ value, set }) => (
-        <TextField
-          fullWidth
-          label="Nome"
-          value={value ?? ""}
-          onChange={(e) => set(e.target.value)}
-        />
-      ),
-    },
-    {
-      key: "cnpj",
-      label: "CNPJ",
-      required: true,
-      render: ({ value, set }) => (
-        <TextField
-          fullWidth
-          label="CNPJ"
-          value={value ?? ""}
-          onChange={(e) => set(e.target.value)}
-        />
-      ),
-    },
-    {
-      key: "phone",
-      label: "Telefone",
-      required: false,
-      render: ({ value, set }) => (
-        <TextField
-          fullWidth
-          label="Telefone"
-          value={value ?? ""}
-          onChange={(e) => set(e.target.value)}
-        />
-      ),
-    },
-    {
-      key: "contactName",
-      label: "Nome do contato",
-      required: false,
-      render: ({ value, set }) => (
-        <TextField
-          fullWidth
-          label="Nome do contato"
-          value={value ?? ""}
-          onChange={(e) => set(e.target.value)}
-        />
-      ),
-    },
-    {
-      key: "factorTypeId",
-      label: "Tipo de serviço",
-      required: true,
-      render: ({ value, set }) => (
-        <TextField
-          fullWidth
-          select
-          label="Tipo de serviço"
-          value={value ?? ""}
-          onChange={(e) => set(Number(e.target.value))}
-        >
-          {factorTypes.map(
-            (ft: { id: number; factorTypeEnum: string; name?: string }) => (
-              <MenuItem key={ft.id} value={ft.id}>
-                {ft.name ?? renderFactorType(ft.factorTypeEnum)}
-              </MenuItem>
-            ),
-          )}
-        </TextField>
-      ),
-    },
-  ];
 
   return (
     <>
@@ -206,6 +98,7 @@ export default function ThirdPartiesPage() {
             {
               name: val.name,
               phone: val.phone,
+              contactName: val.contactName,
               cnpj: val.cnpj,
               factorTypeId: Number(val.factorTypeId),
             },

@@ -2,6 +2,7 @@ package com.catolica.terraz.enums;
 
 public enum EntityType {
     TRACT,
-    ADDRESS,
-    FACTOR_TYPE
+    QUOTE,
+    FACTOR_TYPE,
+    THIRD_PARTY
 }
