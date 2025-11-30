@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { AppError } from "../../../common/api/types/AppError";
 import { Quote, QuoteListParams } from "../types";
-import { listQuotes } from "../api";
+import { getQuote, listQuotes } from "../api";
 
 export const keys = {
   all: ["quote"] as const,
@@ -13,4 +13,10 @@ export const useQuotes = (params?: QuoteListParams) =>
   useQuery<Quote[], AppError>({
     queryKey: keys.list(params),
     queryFn: ({ signal }) => listQuotes(params, { signal }),
+  });
+
+export const useQuote = (id?: number) =>
+  useQuery<Quote, AppError>({
+    queryKey: keys.byId(id!),
+    queryFn: ({ signal }) => getQuote(id!),
   });

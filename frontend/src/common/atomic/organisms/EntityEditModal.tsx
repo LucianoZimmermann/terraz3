@@ -204,6 +204,14 @@ export function EntityEditModal<T extends Record<string, any>>({
                         ? "date"
                         : "text"
                   }
+                  inputProps={{
+                    min: 0,
+                    step: 10000,
+                    onWheel:
+                      f.type === "number"
+                        ? (e) => e.currentTarget.blur()
+                        : undefined,
+                  }}
                   label={f.label || toHeader(k)}
                   value={value ?? (f.type === "number" ? "" : "")}
                   onChange={(e) =>

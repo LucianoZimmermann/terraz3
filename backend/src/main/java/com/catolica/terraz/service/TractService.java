@@ -4,7 +4,6 @@ import com.catolica.terraz.dto.TractDTO;
 import com.catolica.terraz.dto.tract.TractCreateDTO;
 import com.catolica.terraz.enums.EntityType;
 import com.catolica.terraz.exception.ExceptionHelper;
-import com.catolica.terraz.model.Neighborhood;
 import com.catolica.terraz.model.Tract;
 import com.catolica.terraz.model.TractOwner;
 import com.catolica.terraz.repository.TractOwnerRepository;
@@ -30,6 +29,7 @@ public class TractService {
     tract.setStreet(dto.getStreet());
     tract.setNumber(dto.getNumber());
     tract.setCity(dto.getCity());
+    tract.setNeighborhood(dto.getNeighborhood());
     tract.setState(dto.getState());
     tract.setCep(dto.getCep());
 
@@ -38,10 +38,6 @@ public class TractService {
       owner.setId(dto.getTractOwnerId());
       tract.setTractOwner(owner);
     }
-
-    Neighborhood neighborhood = new Neighborhood();
-    neighborhood.setId(dto.getNeighborhoodId());
-    tract.setNeighborhood(neighborhood);
 
     tractRepository.save(tract);
 

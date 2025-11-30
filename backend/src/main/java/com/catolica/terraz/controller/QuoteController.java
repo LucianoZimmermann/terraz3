@@ -32,21 +32,20 @@ public class QuoteController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<RequestQuoteDTO> getQuoteById(@PathVariable Long id) {
-    Optional<RequestQuoteDTO> quoteDTO = quoteService.getQuoteById(id);
+  public ResponseEntity<ResponseQuoteDTO> getQuoteById(@PathVariable Long id) {
+    Optional<ResponseQuoteDTO> quoteDTO = quoteService.getQuoteById(id);
     return quoteDTO.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
   }
 
   @GetMapping("/owner/{id}")
-  public ResponseEntity<List<RequestQuoteDTO>> getQuotesByOwnerId(@PathVariable Long id) {
-    List<RequestQuoteDTO> quotes = quoteService.getQuotesByOwnerId(id);
+  public ResponseEntity<List<ResponseQuoteDTO>> getQuotesByOwnerId(@PathVariable Long id) {
+    List<ResponseQuoteDTO> quotes = quoteService.getQuotesByOwnerId(id);
     return ResponseEntity.ok(quotes);
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<ResponseQuoteDTO> updateQuote(@PathVariable Long id, @RequestBody UpdateQuoteDTO dto){
-    dto.setId(id);
-    return ResponseEntity.ok(quoteService.updateQuote(dto));
+    return ResponseEntity.ok(quoteService.updateQuote(id, dto));
   }
 
   @DeleteMapping("/{id}")

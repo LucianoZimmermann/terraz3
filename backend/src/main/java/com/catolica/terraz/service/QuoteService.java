@@ -1,15 +1,17 @@
 package com.catolica.terraz.service;
 
 import com.catolica.terraz.dto.FactorDTO;
+import com.catolica.terraz.dto.TractDTO;
 import com.catolica.terraz.dto.quote.CreatedQuoteDTO;
 import com.catolica.terraz.dto.quote.RequestQuoteDTO;
 import com.catolica.terraz.dto.quote.ResponseQuoteDTO;
 import com.catolica.terraz.dto.quote.UpdateQuoteDTO;
 import com.catolica.terraz.enums.EntityType;
-import com.catolica.terraz.enums.FeasibilityEnum;
+import com.catolica.terraz.enums.FactorTypeEnum;
 import com.catolica.terraz.exception.ExceptionHelper;
 import com.catolica.terraz.model.*;
 import com.catolica.terraz.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
@@ -17,15 +19,12 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Service
 @AllArgsConstructor
@@ -34,147 +33,118 @@ public class QuoteService {
     private final QuoteRepository quoteRepository;
     private final TractRepository tractRepository;
     private final ThirdPartyRepository thirdPartyRepository;
+    private final FactorRepository factorRepository;
     private final FactorTypeRepository factorTypeRepository;
     private final ModelMapper modelMapper;
 
     @Transactional
     public CreatedQuoteDTO saveQuote(RequestQuoteDTO quoteDTO) {
 
-        Quote quote =
-                Quote.builder()
-                        .factorList(new ArrayList<>())
-                        .totalFactorsPrice(BigDecimal.ZERO)
-                        .lotCount(BigDecimal.ZERO)
-                        .createDate(LocalDateTime.now())
-                        .build();
+        Quote quote = Quote.builder().factorList(new ArrayList<>()).totalFactorsPrice(BigDecimal.ZERO).lotCount(BigDecimal.ZERO).pricePerLot(BigDecimal.ZERO).totalProfit(BigDecimal.ZERO).totalLiquidProfit(BigDecimal.ZERO).markup(BigDecimal.ZERO).createDate(LocalDateTime.now()).build();
+
+        List<Factor> factors = List.of(FactorTypeEnum.HYDRO_SANITARY_SYSTEM, FactorTypeEnum.RAINWATER_DRAINAGE_SYSTEM, FactorTypeEnum.PAVING, FactorTypeEnum.ELECTRICAL_NETWORK, FactorTypeEnum.EARTHWORKS).stream().map(ftEnum -> {
+            FactorType factorType = factorTypeRepository.findByFactorTypeEnum(ftEnum).orElseThrow(() -> new EntityNotFoundException("Tipo de fator não cadastrado"));
+
+            return Factor.builder().factorType(factorType).price(BigDecimal.ZERO).quote(quote).build();
+        }).toList();
+
+        quote.getFactorList().addAll(factors);
 
         Quote savedQuote = quoteRepository.saveAndFlush(quote);
+
+        factors.forEach(factorRepository::save);
 
         return CreatedQuoteDTO.builder().id(savedQuote.getId()).build();
     }
 
-    private FeasibilityEnum classifyProfitability(BigDecimal marginPercent) {
-        if (marginPercent == null) {
-            marginPercent = BigDecimal.ZERO;
-        }
-
-        if (marginPercent.compareTo(BigDecimal.ZERO) < 0) {
-            return FeasibilityEnum.IMPOSSIBLE;
-        } else if (marginPercent.compareTo(new BigDecimal("0.10")) < 0) {
-            return FeasibilityEnum.LOW_PROFITABILITY;
-        } else if (marginPercent.compareTo(new BigDecimal("0.20")) < 0) {
-            return FeasibilityEnum.MODERATE;
-        } else if (marginPercent.compareTo(new BigDecimal("0.30")) < 0) {
-            return FeasibilityEnum.PROFITABLE;
-        } else {
-            return FeasibilityEnum.VERY_PROFITABLE;
-        }
-    }
-
     @Transactional
-    public ResponseQuoteDTO updateQuote(UpdateQuoteDTO quoteDTO) {
+    public ResponseQuoteDTO updateQuote(Long id, UpdateQuoteDTO quoteDTO) {
 
-        Tract tract = tractRepository.findById(quoteDTO.getTractId())
-                .orElseThrow(() ->
-                        ExceptionHelper.notFoundException(EntityType.TRACT, quoteDTO.getTractId())
-                );
+        Tract tract = tractRepository.findById(quoteDTO.getTractId()).orElseThrow(() -> ExceptionHelper.notFoundException(EntityType.TRACT, quoteDTO.getTractId()));
 
-        BigDecimal priceFactor = tract.getNeighborhood().getPriceFactor();
-
-        Quote quote = quoteRepository.findById(quoteDTO.getId())
-                .orElseThrow(() ->
-                        ExceptionHelper.notFoundException(EntityType.QUOTE, quoteDTO.getId())
-                );
-
-        List<Factor> existingFactors = quote.getFactorList();
-        existingFactors.clear();
+        Quote quote = quoteRepository.findById(id).orElseThrow(() -> ExceptionHelper.notFoundException(EntityType.QUOTE, quoteDTO.getId()));
 
         for (FactorDTO f : quoteDTO.getFactors()) {
-            FactorType factorType = factorTypeRepository.findById(f.getFactorTypeId())
-                    .orElseThrow(() ->
-                            ExceptionHelper.notFoundException(EntityType.FACTOR_TYPE, f.getFactorTypeId())
-                    );
+
+            Factor factor = factorRepository.findByQuoteIdAndFactorTypeId(id, f.getFactorTypeId());
+
+            FactorType factorType = factorTypeRepository.findById(f.getFactorTypeId()).orElseThrow(() -> ExceptionHelper.notFoundException(EntityType.FACTOR_TYPE, f.getFactorTypeId()));
 
             ThirdParty thirdParty = null;
             if (f.getThirdPartyId() != null) {
-                thirdParty = thirdPartyRepository.findById(f.getThirdPartyId())
-                        .orElseThrow(() ->
-                                ExceptionHelper.notFoundException(EntityType.THIRD_PARTY, f.getThirdPartyId())
-                        );
+                thirdParty = thirdPartyRepository.findById(f.getThirdPartyId()).orElseThrow(() -> ExceptionHelper.notFoundException(EntityType.THIRD_PARTY, f.getThirdPartyId()));
             }
 
-            Factor factor = new Factor();
             factor.setFactorType(factorType);
             factor.setPrice(f.getPrice());
-            factor.setQuote(quote);
             factor.setThirdParty(thirdParty);
-
-            existingFactors.add(factor);
+            factorRepository.save(factor);
         }
 
-        BigDecimal lotCount = quoteDTO.getLotCount() != null
-                ? quoteDTO.getLotCount()
-                : BigDecimal.ZERO;
+        BigDecimal lotCount = quoteDTO.getLotCount() != null ? quoteDTO.getLotCount() : BigDecimal.ZERO;
 
-        BigDecimal totalFactorsPrice = quoteDTO.getTotalFactorsPrice();
+        BigDecimal tractOwnerLotCount = quoteDTO.getTractOwnerLotCount() != null ? quoteDTO.getTractOwnerLotCount() : BigDecimal.ZERO;
 
-        BigDecimal costPerLot = BigDecimal.ZERO;
+        BigDecimal terrazLotCount = lotCount.subtract(tractOwnerLotCount);
+
+        BigDecimal pricePerLot = quoteDTO.getPricePerLot() != null ? quoteDTO.getPricePerLot() : BigDecimal.ZERO;
+
+        BigDecimal totalQuoteProfit = pricePerLot.multiply(lotCount);
+
+        BigDecimal totalFactorsPrice = quoteDTO.getTotalFactorsPrice() != null ? quoteDTO.getTotalFactorsPrice() : BigDecimal.ZERO;
+
+        BigDecimal liquidProfitPerLot = BigDecimal.ZERO;
+        BigDecimal markup = BigDecimal.ZERO;
+
         if (lotCount.compareTo(BigDecimal.ZERO) > 0) {
-            costPerLot = totalFactorsPrice.divide(lotCount, 2, RoundingMode.HALF_UP);
+            liquidProfitPerLot = totalQuoteProfit.subtract(totalFactorsPrice).divide(lotCount, 2, RoundingMode.HALF_UP);
         }
 
-        BigDecimal pricePerLot = BigDecimal.ZERO;
-        if (lotCount.compareTo(BigDecimal.ZERO) > 0) {
-            pricePerLot = priceFactor
-                    .multiply(costPerLot)
-                    .setScale(2, RoundingMode.HALF_UP);
+        if (totalFactorsPrice.compareTo(BigDecimal.ZERO) > 0) {
+            markup = totalQuoteProfit.divide(totalFactorsPrice, 4, RoundingMode.HALF_UP);
         }
 
-        BigDecimal totalRevenue = pricePerLot.multiply(lotCount);
-        BigDecimal totalProfit = totalRevenue.subtract(totalFactorsPrice);
-
-        BigDecimal marginPercent = BigDecimal.ZERO;
-        if (totalRevenue.compareTo(BigDecimal.ZERO) > 0) {
-            marginPercent = totalProfit.divide(totalRevenue, 4, RoundingMode.HALF_UP);
-        }
-
-        FeasibilityEnum feasibility = classifyProfitability(marginPercent);
+        BigDecimal totalProfit = terrazLotCount.multiply(pricePerLot);
+        BigDecimal totalLiquidProfit = terrazLotCount.multiply(liquidProfitPerLot);
 
         quote.setTract(tract);
         quote.setTotalFactorsPrice(totalFactorsPrice);
         quote.setLotCount(lotCount);
+        quote.setTractOwnerLotCount(tractOwnerLotCount);
+        quote.setTotalProfit(totalProfit);
+        quote.setTotalLiquidProfit(totalLiquidProfit);
+        quote.setMarkup(markup);
         quote.setPricePerLot(pricePerLot);
-        quote.setFeasibility(feasibility);
 
         Quote savedQuote = quoteRepository.saveAndFlush(quote);
 
-        return ResponseQuoteDTO.builder()
-                .id(savedQuote.getId())
-                .build();
+        TractDTO tractDTO = modelMapper.map(savedQuote.getTract(), TractDTO.class);
+
+        List<FactorDTO> factorDTOs = savedQuote.getFactorList().stream().map(f -> FactorDTO.builder().id(f.getId()).factorTypeId(f.getFactorType().getId()).thirdPartyId(f.getThirdParty() != null ? f.getThirdParty().getId() : null).quoteId(quote.getId()).price(f.getPrice()).build()).toList();
+
+        return ResponseQuoteDTO.builder().id(savedQuote.getId()).tract(tractDTO).factors(factorDTOs).lotCount(savedQuote.getLotCount()).tractOwnerLotCount(savedQuote.getTractOwnerLotCount()).pricePerLot(savedQuote.getPricePerLot()).totalFactorsPrice(savedQuote.getTotalFactorsPrice()).totalProfit(savedQuote.getTotalProfit()).totalLiquidProfit(savedQuote.getTotalLiquidProfit()).markup(savedQuote.getMarkup()).createDate(savedQuote.getCreateDate()).build();
     }
 
 
     public List<ResponseQuoteDTO> getAllQuotes() {
-        return quoteRepository.findAll().stream()
-                .map(quote -> modelMapper.map(quote, ResponseQuoteDTO.class))
-                .collect(Collectors.toList());
+        return quoteRepository.findAll().stream().map(quote -> modelMapper.map(quote, ResponseQuoteDTO.class)).collect(Collectors.toList());
     }
 
-    public Optional<RequestQuoteDTO> getQuoteById(Long id) {
-        return quoteRepository.findById(id).map(quote -> modelMapper.map(quote, RequestQuoteDTO.class));
+    public Optional<ResponseQuoteDTO> getQuoteById(Long id) {
+        return quoteRepository.findById(id).map(quote -> {
+            ResponseQuoteDTO dto = modelMapper.map(quote, ResponseQuoteDTO.class);
+            List<Factor> factors = factorRepository.findByQuoteId(id);
+            List<FactorDTO> factorDTOs = factors.stream().map(f -> modelMapper.map(f, FactorDTO.class)).toList();
+            dto.setFactors(factorDTOs);
+            return dto;
+        });
     }
 
-    public List<RequestQuoteDTO> getQuotesByOwnerId(Long id) {
-        return quoteRepository.findAll().stream()
-                .filter(
-                        quote ->
-                                quote.getTract().getTractOwner() != null
-                                        && id.equals(quote.getTract().getTractOwner().getId()))
-                .map(quote -> modelMapper.map(quote, RequestQuoteDTO.class))
-                .collect(Collectors.toList());
+    public List<ResponseQuoteDTO> getQuotesByOwnerId(Long id) {
+        return quoteRepository.findAll().stream().filter(quote -> quote.getTract().getTractOwner() != null && id.equals(quote.getTract().getTractOwner().getId())).map(quote -> modelMapper.map(quote, ResponseQuoteDTO.class)).collect(Collectors.toList());
     }
 
-    public void deleteQuote(Long id){
+    public void deleteQuote(Long id) {
         quoteRepository.deleteById(id);
     }
 }

@@ -8,37 +8,28 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useQuotes } from "../queries";
 import { Quote } from "../types";
-import { renderQuoteFeasibility } from "../../../common/utils";
 import { useNavigate } from "@tanstack/react-router";
 import { useCreateQuote, useDeleteQuote } from "../mutations";
 import { useCreatedQuote } from "../../../common/store/createdQuote.store";
-import { useEffect } from "react";
-import { on } from "events";
 
 export default function QuotesPage() {
+  const navigate = useNavigate();
+
   const { data, isLoading, isError } = useQuotes();
   const createQuote = useCreateQuote();
   const setCreatedQuoteId = useCreatedQuote((s) => s.setCreatedQuoteId);
   const deleteQuote = useDeleteQuote();
-  // const [deleteQuote, setDeleteQuote] = useState<>(false);
-
-  const navigate = useNavigate();
 
   function onEdit(id: number) {
-    // abrir modal, navegar, etc.
-    // ex.: navigate(`/tract-owners/${id}/edit`);
+    navigate({
+      to: "/edit-quote/$quoteId",
+      params: { quoteId: String(id) },
+    });
   }
 
   function onDelete(id: number) {
     deleteQuote.mutateAsync(id);
   }
-
-  // useEffect((() => {deletar a cotação caso deseja demonstado }), [deleteQuote]);
-  //const deleteQuoteOnExit = useCallback(() => {
-  //  if (deleteQuote) {
-  //    deleteQuote.mutateAsync(id);
-  //  }
-  //}, [deleteQuote]);
 
   const onAddQuote = async () => {
     const response = await createQuote.mutateAsync({
@@ -55,7 +46,12 @@ export default function QuotesPage() {
     {
       key: "tract",
       header: "Terreno",
-      render: (row) => row.tract.street + ", " + row.tract.neighborhood.name,
+      render: (row) =>
+        !!row.tract?.street && !!row.tract?.neighborhood
+          ? (row.tract?.street ? row.tract?.street : "-") +
+            ", " +
+            (row.tract?.neighborhood ? row.tract?.neighborhood : "-")
+          : "-",
     },
     {
       key: "lotCount",
@@ -66,11 +62,6 @@ export default function QuotesPage() {
       key: "pricePerLot",
       header: "Preço por lote",
       render: (row) => `R$ ${row.pricePerLot.toFixed(2)}`,
-    },
-    {
-      key: "feasibility",
-      header: "Viabilidade",
-      render: (row) => renderQuoteFeasibility(row.feasibility),
     },
     {
       key: "createDate",

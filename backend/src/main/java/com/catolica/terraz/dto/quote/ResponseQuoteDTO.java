@@ -2,11 +2,11 @@ package com.catolica.terraz.dto.quote;
 
 import com.catolica.terraz.dto.FactorDTO;
 import com.catolica.terraz.dto.TractDTO;
-import com.catolica.terraz.enums.FeasibilityEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+
 import lombok.*;
 
 @Getter
@@ -19,8 +19,11 @@ public class ResponseQuoteDTO {
   private TractDTO tract;
   private List<FactorDTO> factors;
   private BigDecimal lotCount;
+  private BigDecimal tractOwnerLotCount;
   private BigDecimal pricePerLot;
   private BigDecimal totalFactorsPrice;
-  private FeasibilityEnum feasibility;
+  private BigDecimal totalProfit;
+  private BigDecimal totalLiquidProfit;
+  private BigDecimal markup;
   private LocalDateTime createDate;
 }

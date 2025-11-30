@@ -20,21 +20,6 @@ export function renderFactorType(factorTypeEnum: string) {
   }
 }
 
-export function renderQuoteFeasibility(feasibilityEnum: string) {
-  switch (feasibilityEnum) {
-    case "NOT_FEASIBLE":
-      return "Não viável";
-    case "LOW_PROFIT":
-      return "Baixa lucratividade";
-    case "PROFITABLE":
-      return "Lucrativo";
-    case "VERY_PROFITABLE":
-      return "Muito lucrativo";
-    default:
-      return feasibilityEnum.toLowerCase();
-  }
-}
-
 export function onlyDigits(s: string) {
   return s.replace(/\D/g, "");
 }

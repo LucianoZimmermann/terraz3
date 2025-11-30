@@ -16,5 +16,7 @@ public class UpdateQuoteDTO {
     private Long tractId;
     private List<FactorDTO> factors;
     private BigDecimal lotCount;
+    private BigDecimal tractOwnerLotCount;
+    private BigDecimal pricePerLot;
     private BigDecimal totalFactorsPrice;
 }

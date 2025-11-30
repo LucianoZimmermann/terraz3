@@ -6,8 +6,7 @@ export type Factor = {
   id: number;
   quote: Quote;
   thirdParty: ThirdParty;
-  materialCost: number;
-  laborCost: number;
+  price: number;
   factorType: FactorType;
 };
 

@@ -14,7 +14,7 @@ public class TractDTO {
   private String street;
   private String number;
   private String city;
-  private NeighborhoodDTO neighborhood;
+  private String neighborhood;
   private String state;
   private String cep;
   private TractOwnerDTO tractOwner;

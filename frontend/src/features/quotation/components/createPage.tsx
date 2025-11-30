@@ -15,7 +15,6 @@ import { maskCEP, onlyDigits } from "../../../common/utils";
 import { useFactorTypes } from "../../factor_type/queries";
 import { FactorTypeEnum } from "../../factor_type/types";
 import { FACTOR_LABELS } from "../../factor_type/utils";
-import { useNeighborhoods } from "../../neighborhood/queries";
 import { useCreateThirdParty } from "../../third_party/mutations";
 import { useThirdParties } from "../../third_party/queries";
 import { ThirdPartyForm } from "../../third_party/types";
@@ -38,7 +37,6 @@ export default function CreateQuotesPage() {
   const navigate = useNavigate();
   const { data: tracts = [] } = useTracts();
   const { data: owners = [] } = useTractOwners();
-  const { data: neighborhoods = [] } = useNeighborhoods();
   const { data: thirdParties = [] } = useThirdParties();
   const { data: factorTypes = [] } = useFactorTypes();
   const createTract = useCreateTract();
@@ -51,11 +49,11 @@ export default function CreateQuotesPage() {
   const [selectedTractId, setSelectedTractId] = useState<number | "">("");
   const [openTractModal, setOpenTractModal] = useState(false);
 
-  const [lotCount, setLotCount] = useState<number | "">("");
+  const [lotCount, setLotCount] = useState<number>(0);
+  const [pricePerLot, setPricePerLot] = useState<number>(0);
+  const [ownerLotCount, setOwnerLotCount] = useState<number>(0);
 
   const [openThirdPartyModal, setOpenThirdPartyModal] = useState(false);
-  const [factorTypeForNewThirdParty, setFactorTypeForNewThirdParty] =
-    useState<FactorTypeEnum>("EARTHWORKS");
 
   const [factors, setFactors] = useState<
     Record<FactorTypeEnum, FactorFormState>
@@ -78,7 +76,11 @@ export default function CreateQuotesPage() {
             fullWidth
             label="Metros quadrados"
             type="number"
-            inputProps={{ min: 0, step: 1 }}
+            inputProps={{
+              min: 0,
+              step: 1,
+              onWheel: (e) => e.currentTarget.blur(),
+            }}
             value={value ?? ""}
             onChange={(e) => {
               const v = e.target.value;
@@ -140,23 +142,16 @@ export default function CreateQuotesPage() {
         ),
       },
       {
-        key: "neighborhoodId",
+        key: "neighborhood",
         label: "Bairro",
         required: true,
         render: ({ value, set }) => (
           <TextField
             fullWidth
-            select
             label="Bairro"
             value={value ?? ""}
-            onChange={(e) => set(Number(e.target.value))}
-          >
-            {neighborhoods.map((n: { id: number; name: string }) => (
-              <MenuItem key={n.id} value={n.id}>
-                {n.name}
-              </MenuItem>
-            ))}
-          </TextField>
+            onChange={(e) => set(e.target.value)}
+          />
         ),
       },
       {
@@ -193,7 +188,7 @@ export default function CreateQuotesPage() {
         ),
       },
     ],
-    [neighborhoods, owners],
+    [owners],
   );
 
   function updateFactor<K extends keyof FactorFormState>(
@@ -208,11 +203,6 @@ export default function CreateQuotesPage() {
         [field]: value,
       },
     }));
-  }
-
-  function handleOpenThirdPartyModal(factorTypeEnum: FactorTypeEnum) {
-    setFactorTypeForNewThirdParty(factorTypeEnum);
-    setOpenThirdPartyModal(true);
   }
 
   const factorsTotalValue = useMemo(() => {
@@ -231,11 +221,34 @@ export default function CreateQuotesPage() {
 
       return total + numericValue;
     }, 0);
-  }, [factors]);
+  }, [factors, factorTypes]);
+
+  const companyLotCount = useMemo(() => {
+    if (lotCount === 0 || ownerLotCount === 0) return null;
+    const total = Number(lotCount);
+    const owner = Number(ownerLotCount);
+    if (Number.isNaN(total) || Number.isNaN(owner)) return null;
+    return total - owner;
+  }, [lotCount, ownerLotCount]);
 
   const handleSubmit = async () => {
-    if (!selectedTractId || lotCount === "") {
-      alert("Selecione um terreno e informe o número de lotes.");
+    if (!selectedTractId || lotCount === 0 || ownerLotCount === 0) {
+      alert(
+        "Selecione um terreno, informe o número total de lotes e os lotes do dono do terreno.",
+      );
+      return;
+    }
+
+    const total = Number(lotCount);
+    const owner = Number(ownerLotCount);
+
+    if (Number.isNaN(total) || Number.isNaN(owner)) {
+      alert("Informe valores numéricos válidos para os lotes.");
+      return;
+    }
+
+    if (owner > total) {
+      alert("Os lotes do dono do terreno não podem ser maiores que o total.");
       return;
     }
 
@@ -246,7 +259,9 @@ export default function CreateQuotesPage() {
 
     const payload: CalculatedQuote = {
       tractId: Number(selectedTractId),
-      lotCount: Number(lotCount),
+      pricePerLot: pricePerLot,
+      lotCount: total,
+      tractOwnerLotCount: owner,
       totalFactorsPrice: factorsTotalValue,
       factors: factorTypes.map((f: any) => {
         const key = f.factorTypeEnum as FactorTypeEnum;
@@ -266,275 +281,349 @@ export default function CreateQuotesPage() {
         id: createdQuoteId,
         body: payload,
       });
+      navigate({ to: "/quotes" });
     } catch (e) {
       console.error("Erro ao atualizar cotação", e);
       alert("Erro ao salvar cotação.");
     }
+  };
 
-    return (
-      <Box
-        sx={{
-          flex: 1,
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          boxSizing: "border-box",
-        }}
-      >
-        <Stack spacing={3} sx={{ flex: 1 }}>
-          <Typography variant="h5" fontWeight={600}>
-            Nova Cotação
+  return (
+    <Box
+      sx={{
+        flex: 1,
+        width: "100%",
+        display: "felx",
+        flexDirection: "column",
+        boxSizing: "border-box",
+      }}
+    >
+      <Stack spacing={3} sx={{ flex: 1 }}>
+        <Typography variant="h5" fontWeight={600}>
+          Nova Cotação
+        </Typography>
+
+        <Paper sx={{ p: 2 }}>
+          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+            Terreno
           </Typography>
-
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-              Terreno
-            </Typography>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <TextField
-                fullWidth
-                select
-                value={selectedTractId || ""}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setSelectedTractId(v === "" ? "" : Number(v));
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      {!selectedTractId ? "Selecione um terreno" : ""}
-                    </InputAdornment>
-                  ),
-                }}
-              >
-                {tracts.length === 0 ? (
-                  <MenuItem value="" disabled>
-                    Nenhum terreno disponível
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+            <TextField
+              fullWidth
+              select
+              value={selectedTractId || ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                setSelectedTractId(v === "" ? "" : Number(v));
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {!selectedTractId ? "Selecione um terreno" : ""}
+                  </InputAdornment>
+                ),
+              }}
+            >
+              {tracts.length === 0 ? (
+                <MenuItem value="" disabled>
+                  Nenhum terreno disponível
+                </MenuItem>
+              ) : (
+                tracts.map((t: Tract) => (
+                  <MenuItem key={t.id} value={t.id}>
+                    {t.street}
+                    {t.neighborhood ? `, ${t.neighborhood}` : ""}
+                    {t.number ? `, ${t.number}` : ""} - {t.city}
+                    {t.state ? `/${t.state}` : ""}{" "}
                   </MenuItem>
-                ) : (
-                  tracts.map((t: Tract) => (
-                    <MenuItem key={t.id} value={t.id}>
-                      {t.street}
-                      {t.number ? `, ${t.number}` : ""} - {t.city}
-                      {t.state ? `/${t.state}` : ""}{" "}
-                      {t.neighborhood?.name ? `(${t.neighborhood.name})` : ""}
-                    </MenuItem>
-                  ))
-                )}
-              </TextField>
+                ))
+              )}
+            </TextField>
 
-              <Button
-                variant="outlined"
-                onClick={() => setOpenTractModal(true)}
-                sx={{ whiteSpace: "nowrap" }}
-              >
-                Novo terreno
-              </Button>
-            </Stack>
-          </Paper>
+            <Button
+              variant="contained"
+              onClick={() => setOpenTractModal(true)}
+              sx={{
+                whiteSpace: "nowrap",
+                boxShadow: "inherit",
+                flexShrink: 0,
+                px: 2,
+                py: 1,
+              }}
+            >
+              Novo terreno
+            </Button>
+          </Stack>
+        </Paper>
 
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-              Número de lotes
-            </Typography>
+        <Paper sx={{ p: 2 }}>
+          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+            Valor por lote
+          </Typography>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
             <TextField
               fullWidth
               type="number"
-              inputProps={{ min: 0, step: 10 }}
+              inputProps={{
+                min: 0,
+                step: 100000,
+                onWheel: (e) => e.currentTarget.blur(),
+              }}
+              value={pricePerLot ?? ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                setPricePerLot(v === "" ? 0 : Number(v));
+              }}
+              placeholder="0"
+            />
+          </Stack>
+        </Paper>
+
+        <Paper sx={{ p: 2 }}>
+          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+            Quantidade de lotes
+          </Typography>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+            <TextField
+              fullWidth
+              type="number"
+              label="Total de lotes da cotação"
+              inputProps={{
+                min: 0,
+                step: 1,
+                onWheel: (e) => e.currentTarget.blur(),
+              }}
               value={lotCount ?? ""}
               onChange={(e) => {
                 const v = e.target.value;
-                setLotCount(v === "" ? "" : Number(v));
+                setLotCount(v === "" ? 0 : Number(v));
               }}
-              placeholder="0.00"
+              placeholder="0"
             />
-          </Paper>
 
-          <Paper sx={{ p: 2, flexShrink: 0 }}>
+            <TextField
+              fullWidth
+              type="number"
+              label="Lotes do dono do terreno"
+              inputProps={{
+                min: 0,
+                step: 1,
+                onWheel: (e) => e.currentTarget.blur(),
+              }}
+              value={ownerLotCount ?? ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                setOwnerLotCount(v === "" ? 0 : Number(v));
+              }}
+              placeholder="0"
+            />
+          </Stack>
+
+          {companyLotCount != null && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Lotes da empresa: {companyLotCount}
+            </Typography>
+          )}
+        </Paper>
+
+        <Paper sx={{ p: 2, flexShrink: 0 }}>
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            justifyContent={"space-between"}
+            mb={2}
+          >
             <Typography variant="subtitle1" fontWeight={600} gutterBottom>
               Fatores
             </Typography>
 
-            <Stack spacing={3}>
-              {(factorTypes ?? []).map((factor: any) => {
-                const key = factor.factorTypeEnum as FactorTypeEnum;
-                const factorState = factors[key];
-
-                const factorThirdParties = (thirdParties ?? []).filter(
-                  (tp: any) =>
-                    tp.factorType?.factorTypeEnum === factor.factorTypeEnum,
-                );
-
-                return (
-                  <Stack key={factor.id} spacing={1}>
-                    <Typography variant="body1" fontWeight={600}>
-                      {FACTOR_LABELS[key] ?? key}
-                    </Typography>
-                    <Stack
-                      direction={{ xs: "column", sm: "row" }}
-                      spacing={2}
-                      alignItems={{ xs: "stretch", sm: "center" }}
-                    >
-                      <TextField
-                        fullWidth
-                        type="number"
-                        inputProps={{ min: 0, step: 1000 }}
-                        value={
-                          factorState.price === "" || factorState.price == null
-                            ? ""
-                            : Number(factorState.price).toFixed(2)
-                        }
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          if (v === "") {
-                            updateFactor(key, "price", "");
-                            return;
-                          }
-
-                          const n = Number(v);
-                          if (!Number.isNaN(n)) {
-                            updateFactor(key, "price", n);
-                          }
-                        }}
-                        placeholder="0.00"
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">R$</InputAdornment>
-                          ),
-                        }}
-                      />
-
-                      <TextField
-                        fullWidth
-                        select
-                        label="Terceiro"
-                        value={factorState.thirdPartyId || ""}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          updateFactor(
-                            key,
-                            "thirdPartyId",
-                            v === "" ? "" : Number(v),
-                          );
-                        }}
-                      >
-                        {factorThirdParties.length === 0 ? (
-                          <MenuItem value="" disabled>
-                            Nenhum terceiro disponível
-                          </MenuItem>
-                        ) : (
-                          factorThirdParties.map((tp: any) => (
-                            <MenuItem key={tp.id} value={tp.id}>
-                              {tp.name}
-                            </MenuItem>
-                          ))
-                        )}
-                      </TextField>
-
-                      <Button
-                        variant="outlined"
-                        onClick={() => setOpenTractModal(true)}
-                        sx={{
-                          whiteSpace: "nowrap",
-                          flexShrink: 0,
-                          minWidth: "fit-content",
-                          px: 2,
-                          py: 1,
-                        }}
-                      >
-                        Novo terceiro
-                      </Button>
-                    </Stack>
-                  </Stack>
-                );
-              })}
-            </Stack>
-          </Paper>
-
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-              Valor total em serviços de terceiros
-            </Typography>
-            <Typography variant="h6" fontWeight={600}>
-              R$ {factorsTotalValue.toFixed(2)}
-            </Typography>
-          </Paper>
-
-          <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button variant="outlined">Cancelar</Button>
-            <Button variant="contained" onClick={handleSubmit}>
-              Salvar cotação
+            <Button
+              variant="contained"
+              onClick={() => setOpenThirdPartyModal(true)}
+              sx={{
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                minWidth: "fit-content",
+                px: 2,
+                py: 1,
+              }}
+            >
+              Novo terceiro
             </Button>
           </Stack>
+
+          <Stack spacing={3}>
+            {(factorTypes ?? []).map((factor: any) => {
+              const key = factor.factorTypeEnum as FactorTypeEnum;
+              const factorState = factors[key];
+
+              const factorThirdParties = (thirdParties ?? []).filter(
+                (tp: any) =>
+                  tp.factorType?.factorTypeEnum === factor.factorTypeEnum,
+              );
+
+              return (
+                <Stack key={factor.id} spacing={1}>
+                  <Typography variant="body1" fontWeight={600}>
+                    {FACTOR_LABELS[key] ?? key}
+                  </Typography>
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={2}
+                    alignItems={{ xs: "stretch", sm: "center" }}
+                  >
+                    <TextField
+                      fullWidth
+                      type="number"
+                      inputProps={{
+                        min: 0,
+                        step: 100000,
+                        onWheel: (e) => e.currentTarget.blur(),
+                      }}
+                      value={
+                        factorState.price === "" || factorState.price == null
+                          ? ""
+                          : Number(factorState.price).toFixed(2)
+                      }
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (v === "") {
+                          updateFactor(key, "price", "");
+                          return;
+                        }
+
+                        const n = Number(v);
+                        if (!Number.isNaN(n)) {
+                          updateFactor(key, "price", n);
+                        }
+                      }}
+                      placeholder="0.00"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">R$</InputAdornment>
+                        ),
+                      }}
+                    />
+
+                    <TextField
+                      fullWidth
+                      select
+                      label="Terceiro"
+                      value={factorState.thirdPartyId || ""}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        updateFactor(
+                          key,
+                          "thirdPartyId",
+                          v === "" ? "" : Number(v),
+                        );
+                      }}
+                    >
+                      {factorThirdParties.length === 0 ? (
+                        <MenuItem value="" disabled>
+                          Nenhum terceiro disponível
+                        </MenuItem>
+                      ) : (
+                        factorThirdParties.map((tp: any) => (
+                          <MenuItem key={tp.id} value={tp.id}>
+                            {tp.name}
+                          </MenuItem>
+                        ))
+                      )}
+                    </TextField>
+                  </Stack>
+                </Stack>
+              );
+            })}
+          </Stack>
+        </Paper>
+
+        <Paper sx={{ p: 2 }}>
+          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+            Valor total em serviços de terceiros
+          </Typography>
+          <Typography variant="h6" fontWeight={600}>
+            R$ {factorsTotalValue.toFixed(2)}
+          </Typography>
+        </Paper>
+
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
+          <Button variant="outlined">Cancelar</Button>
+          <Button variant="contained" onClick={handleSubmit}>
+            Salvar cotação
+          </Button>
         </Stack>
+      </Stack>
 
-        <EntityAddModal<TractForm>
-          open={openTractModal}
-          title="Novo Terreno"
-          initialData={
+      <EntityAddModal<TractForm>
+        open={openTractModal}
+        title="Novo Terreno"
+        initialData={
+          {
+            squareMeters: "",
+            street: "",
+            number: "",
+            city: "",
+            state: "",
+            cep: "",
+            neighborhood: "",
+            tractOwnerId: "",
+          } as Partial<TractForm>
+        }
+        fields={tractFields}
+        onClose={() => setOpenTractModal(false)}
+        onSubmit={(val) =>
+          createTract.mutate(
             {
-              squareMeters: "",
-              street: "",
-              number: "",
-              city: "",
-              state: "",
-              cep: "",
-              neighborhoodId: "",
-              tractOwnerId: "",
-            } as Partial<TractForm>
-          }
-          fields={tractFields}
-          onClose={() => setOpenTractModal(false)}
-          onSubmit={(val) =>
-            createTract.mutate(
-              {
-                squareMeters: Number(val.squareMeters),
-                street: val.street!,
-                number: val.number ?? "",
-                city: val.city!,
-                state: val.state ?? "",
-                cep: onlyDigits(val.cep!),
-                neighborhoodId: Number(val.neighborhoodId),
-                tractOwnerId: Number(val.tractOwnerId),
+              squareMeters: Number(val.squareMeters),
+              street: val.street!,
+              number: val.number ?? "",
+              city: val.city!,
+              neighborhood: val.neighborhood ?? "",
+              state: val.state ?? "",
+              cep: onlyDigits(val.cep!),
+              tractOwnerId: Number(val.tractOwnerId),
+            },
+            {
+              onSuccess: (created: Tract) => {
+                setOpenTractModal(false);
+                setSelectedTractId(created.id);
               },
-              {
-                onSuccess: (created: Tract) => {
-                  setOpenTractModal(false);
-                  setSelectedTractId(created.id);
-                },
-              },
-            )
-          }
-          submitLabel="Salvar"
-          loading={createTract.isPending}
-        />
+            },
+          )
+        }
+        submitLabel="Salvar"
+        loading={createTract.isPending}
+      />
 
-        <EntityAddModal<ThirdPartyForm>
-          open={openThirdPartyModal}
-          title="Novo Terceiro"
-          initialData={{
-            name: "",
-            cnpj: "",
-            factorTypeId: "",
-          }}
-          fields={fields}
-          onClose={() => handleOpenThirdPartyModal(factorTypeForNewThirdParty)}
-          onSubmit={(val) =>
-            createThirdParty.mutate(
-              {
-                name: val.name,
-                phone: val.phone,
-                cnpj: val.cnpj,
-                contactName: val.contactName,
-                factorTypeId: Number(val.factorTypeId),
-              },
-              { onSuccess: () => setOpenThirdPartyModal(false) },
-            )
-          }
-          submitLabel="Salvar"
-          loading={createThirdParty.isPending}
-        />
-      </Box>
-    );
-  };
+      <EntityAddModal<ThirdPartyForm>
+        open={openThirdPartyModal}
+        title="Novo Terceiro"
+        initialData={{
+          name: "",
+          cnpj: "",
+          phone: "",
+          contactName: "",
+          factorTypeId: "",
+        }}
+        fields={fields}
+        onClose={() => setOpenThirdPartyModal(false)}
+        onSubmit={(val) =>
+          createThirdParty.mutate(
+            {
+              name: val.name,
+              phone: val.phone,
+              cnpj: val.cnpj,
+              contactName: val.contactName,
+              factorTypeId: Number(val.factorTypeId),
+            },
+            { onSuccess: () => setOpenThirdPartyModal(false) },
+          )
+        }
+        submitLabel="Salvar"
+        loading={createThirdParty.isPending}
+      />
+    </Box>
+  );
 }

@@ -27,12 +27,10 @@ import { useCreateTract, useDeleteTract, useUpdateTract } from "../mutations";
 import { useTracts } from "../queries";
 import { Tract, TractForm } from "../types";
 import { maskCEP, onlyDigits } from "../../../common/utils";
-import { useNeighborhoods } from "../../neighborhood/queries";
 
 export default function TractsPage() {
   const { data, isLoading, isError } = useTracts();
   const { data: owners = [] } = useTractOwners();
-  const { data: neighborhoods = [] } = useNeighborhoods();
 
   const createTract = useCreateTract();
   const updateTract = useUpdateTract();
@@ -55,7 +53,7 @@ export default function TractsPage() {
     {
       key: "neighborhood" as keyof Tract,
       header: "Bairro",
-      render: (r) => `${r?.neighborhood?.name ?? "-"}`,
+      render: (r) => `${r?.neighborhood ?? "-"}`,
     },
     {
       key: "tractOwner",
@@ -81,9 +79,9 @@ export default function TractsPage() {
       street: editRow.street ?? "",
       number: editRow.number ?? "",
       city: editRow.city ?? "",
+      neighborhood: editRow.neighborhood ?? "",
       state: editRow.state ?? "",
       cep: editRow.cep ?? "",
-      neighborhoodId: editRow.neighborhood?.id ?? "",
       tractOwnerId: editRow.tractOwner?.id ?? "",
     };
   }, [editRow]);
@@ -98,7 +96,11 @@ export default function TractsPage() {
           fullWidth
           label="Metros quadrados"
           type="number"
-          inputProps={{ min: 0, step: 1 }}
+          inputProps={{
+            min: 0,
+            step: 1,
+            onWheel: (e) => e.currentTarget.blur(),
+          }}
           value={value ?? ""}
           onChange={(e) => {
             const v = e.target.value;
@@ -160,23 +162,16 @@ export default function TractsPage() {
       ),
     },
     {
-      key: "neighborhoodId",
+      key: "neighborhood",
       label: "Bairro",
       required: true,
       render: ({ value, set }) => (
         <TextField
           fullWidth
-          select
           label="Bairro"
           value={value ?? ""}
-          onChange={(e) => set(Number(e.target.value))}
-        >
-          {neighborhoods.map((n: { id: number; name: string }) => (
-            <MenuItem key={n.id} value={n.id}>
-              {n.name}
-            </MenuItem>
-          ))}
-        </TextField>
+          onChange={(e) => set(e.target.value)}
+        />
       ),
     },
     {
@@ -252,9 +247,9 @@ export default function TractsPage() {
             street: "",
             number: "",
             city: "",
+            neighborhood: "",
             state: "",
             cep: "",
-            neighborhoodId: "",
             tractOwnerId: "",
           } as Partial<TractForm>
         }
@@ -267,9 +262,9 @@ export default function TractsPage() {
               street: val.street!,
               number: val.number ?? "",
               city: val.city!,
+              neighborhood: val.neighborhood!,
               state: val.state ?? "",
               cep: onlyDigits(val.cep!),
-              neighborhoodId: Number(val.neighborhoodId),
               tractOwnerId: Number(val.tractOwnerId),
             },
             { onSuccess: () => setOpenCreate(false) },
@@ -297,9 +292,9 @@ export default function TractsPage() {
                 street: val.street!,
                 number: val.number ?? "",
                 city: val.city!,
+                neighborhood: val.neighborhood!,
                 state: val.state ?? "",
                 cep: onlyDigits(val.cep!),
-                neighborhoodId: Number(val.neighborhoodId),
               },
             });
 

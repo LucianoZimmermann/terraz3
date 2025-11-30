@@ -15,4 +15,5 @@ public class RequestQuoteDTO {
   private Long id;
   private List<FactorDTO> factors;
   private BigDecimal lotCount;
+  private BigDecimal pricePerLot;
 }

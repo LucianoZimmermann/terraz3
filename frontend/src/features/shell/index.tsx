@@ -29,7 +29,6 @@ const MINI_W = 72;
 
 const items = [
   { label: "Cotações", icon: <ReceiptLongIcon />, to: "/quotes" },
-  { label: "Bairros", icon: <LocationCityIcon />, to: "/neighborhoods" },
   { label: "Terceiros", icon: <HandshakeIcon />, to: "/third-parties" },
   { label: "Terrenos", icon: <LandscapeIcon />, to: "/tracts" },
   { label: "Donos de Terrenos", icon: <PersonIcon />, to: "/tract-owners" },

@@ -35,12 +35,11 @@ public class Tract {
   private String city;
 
   @Column
+  private String neighborhood;
+
+  @Column
   private String state;
 
   @Column
   private String cep;
-
-  @ManyToOne
-  @JoinColumn(name = "neighborhood_id")
-  private Neighborhood neighborhood;
 }

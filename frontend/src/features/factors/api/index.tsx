@@ -16,6 +16,11 @@ export const getFactor = (id: number) => get<Factor>(`${BASE_URL}/${id}`);
 export const createFactor = (body: FactorCreateDTO) =>
   post<Factor, FactorCreateDTO>(BASE_URL, body);
 
+export const getFactorsByQuotationId = (
+  quotationId: number,
+  config?: { signal?: AbortSignal },
+) => get<Factor[]>(`${BASE_URL}/by-quotation/${quotationId}`, config);
+
 export const updateFactor = (id: number, body: FactorUpdateDTO) =>
   put<Factor, FactorUpdateDTO>(`${BASE_URL}/${id}`, body);
 

@@ -1,4 +1,3 @@
-import { Neighborhood } from "../../neighborhood/types/index.tsx";
 import { TractOwner } from "../../tract_owner/types/index.tsx";
 
 export type Tract = {
@@ -8,9 +7,9 @@ export type Tract = {
   street?: string;
   number?: string;
   city?: string;
+  neighborhood: string;
   state?: string;
   cep?: string;
-  neighborhood: Neighborhood;
 };
 
 export type TractCreateDTO = {
@@ -19,9 +18,9 @@ export type TractCreateDTO = {
   street?: string;
   number?: string;
   city?: string;
+  neighborhood: string;
   state?: string;
   cep?: string;
-  neighborhoodId: number;
 };
 
 export type TractUpdateDTO = Partial<TractCreateDTO>;
@@ -42,7 +41,7 @@ export type TractForm = {
   street: string;
   number: string;
   city: string;
+  neighborhood: string;
   state: string;
   cep: string;
-  neighborhoodId: number | "";
 };

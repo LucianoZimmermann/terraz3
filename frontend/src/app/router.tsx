@@ -8,9 +8,9 @@ import { Shell } from "../features/shell";
 import TractOwnersPage from "../features/tract_owner/components/page";
 import TractsPage from "../features/tract/components/page";
 import ThirdPartiesPage from "../features/third_party/components/page";
-import NeighborhoodsPage from "../features/neighborhood/components/page";
 import QuotesPage from "../features/quotation/components/page";
 import CreateQuotesPage from "../features/quotation/components/createPage";
+import EditQuotePage from "../features/quotation/components/editPage";
 
 export function makeRouter(shellProps: {
   mode: "dark" | "light";
@@ -48,12 +48,6 @@ export function makeRouter(shellProps: {
     component: ThirdPartiesPage,
   });
 
-  const neighborhoodRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/neighborhoods",
-    component: NeighborhoodsPage,
-  });
-
   const quotesRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/quotes",
@@ -66,14 +60,20 @@ export function makeRouter(shellProps: {
     component: CreateQuotesPage,
   });
 
+  const editQuoteRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/edit-quote/$quoteId",
+    component: EditQuotePage,
+  });
+
   const routeTree = rootRoute.addChildren([
     indexRoute,
     tractOwnersRoute,
     tractRoute,
     thirdPartyRoute,
-    neighborhoodRoute,
     quotesRoute,
     createQuoteRoute,
+    editQuoteRoute,
   ]);
   return createRouter({ routeTree });
 }

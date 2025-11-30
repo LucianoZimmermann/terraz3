@@ -24,4 +24,12 @@ public class FactorController {
     List<FactorDTO> factors = factorService.getAllFactors();
     return ResponseEntity.ok(factors);
   }
+
+  @GetMapping("/by-quotation/{quotationId}")
+  public ResponseEntity<List<FactorDTO>> getFactorsByQuotation(
+          @PathVariable Long quotationId
+  ) {
+    List<FactorDTO> factors = factorService.getFactorsByQuoteId(quotationId);
+    return ResponseEntity.ok(factors);
+  }
 }

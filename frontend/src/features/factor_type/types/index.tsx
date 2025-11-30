@@ -3,12 +3,20 @@ export type FactorType = {
   factorTypeEnum: string;
 };
 
-export type FactorTypeEnum =
+export type FactorTypeEnumString =
   | "HYDRO_SANITARY_SYSTEM"
   | "RAINWATER_DRAINAGE_SYSTEM"
   | "PAVING"
   | "ELECTRICAL_NETWORK"
   | "EARTHWORKS";
+
+export enum FactorTypeEnum {
+  HYDRO_SANITARY_SYSTEM = "HYDRO_SANITARY_SYSTEM",
+  RAINWATER_DRAINAGE_SYSTEM = "RAINWATER_DRAINAGE_SYSTEM",
+  PAVING = "PAVING",
+  EARTHWORKS = "EARTHWORKS",
+  ELECTRICAL_NETWORK = "ELECTRICAL_NETWORK",
+}
 
 export type FactorTypeCreateDTO = {
   factorTypeEnum: string;

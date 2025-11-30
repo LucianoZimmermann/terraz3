@@ -19,14 +19,13 @@ public class TractCreateDTO {
 
     private Long tractOwnerId;
 
-    @NotNull
-    private Long neighborhoodId;
-
     private String street;
 
     private String number;
 
     private String city;
+
+    private String neighborhood;
 
     private String state;
 
