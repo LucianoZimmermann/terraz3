@@ -9,29 +9,42 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "@tanstack/react-router";
+
 import { EntityAddModal } from "../../../common/atomic/organisms/EntityAddModal";
 import { FieldDef } from "../../../common/atomic/organisms/EntityEditModal";
 import { maskCEP, onlyDigits } from "../../../common/utils";
+
 import { useFactorTypes } from "../../factor_type/queries";
 import { FACTOR_LABELS } from "../../factor_type/utils";
+import { FactorTypeEnum } from "../../factor_type/types";
+
 import { useCreateThirdParty } from "../../third_party/mutations";
 import { useThirdParties } from "../../third_party/queries";
 import { ThirdPartyForm } from "../../third_party/types";
 import { useThirdPartyFields } from "../../third_party/utils";
+
 import { useCreateTract } from "../../tract/mutations";
 import { useTracts } from "../../tract/queries";
 import { Tract, TractForm } from "../../tract/types";
+
 import { useTractOwners } from "../../tract_owner/queries";
+
 import { CalculatedQuote, Quote } from "../types";
 import { useUpdateQuote } from "../mutations";
-import { useNavigate, useParams } from "@tanstack/react-router";
 import { useQuote } from "../queries";
-import { FactorTypeEnum } from "../../factor_type/types";
-import { useFactorsByQuotationId } from "../../factors/queries";
 
 type FactorFormState = {
   price: number | "";
   thirdPartyId: number | "";
+};
+
+const EMPTY_FACTORS_STATE: Record<FactorTypeEnum, FactorFormState> = {
+  HYDRO_SANITARY_SYSTEM: { price: "", thirdPartyId: "" },
+  RAINWATER_DRAINAGE_SYSTEM: { price: "", thirdPartyId: "" },
+  PAVING: { price: "", thirdPartyId: "" },
+  ELECTRICAL_NETWORK: { price: "", thirdPartyId: "" },
+  EARTHWORKS: { price: "", thirdPartyId: "" },
 };
 
 export default function EditQuotePage() {
@@ -44,7 +57,6 @@ export default function EditQuotePage() {
   const { data: thirdParties = [] } = useThirdParties();
   const { data: factorTypes = [] } = useFactorTypes();
   const { data: quote, isLoading: isQuoteLoading } = useQuote(numericQuoteId);
-  const { data: apiFactors = [] } = useFactorsByQuotationId(numericQuoteId);
 
   const createTract = useCreateTract();
   const createThirdParty = useCreateThirdParty();
@@ -61,15 +73,8 @@ export default function EditQuotePage() {
 
   const [openThirdPartyModal, setOpenThirdPartyModal] = useState(false);
 
-  const [factorFormState, setFactorFormState] = useState<
-    Record<FactorTypeEnum, FactorFormState>
-  >({
-    HYDRO_SANITARY_SYSTEM: { price: "", thirdPartyId: "" },
-    RAINWATER_DRAINAGE_SYSTEM: { price: "", thirdPartyId: "" },
-    PAVING: { price: "", thirdPartyId: "" },
-    ELECTRICAL_NETWORK: { price: "", thirdPartyId: "" },
-    EARTHWORKS: { price: "", thirdPartyId: "" },
-  });
+  const [factorFormState, setFactorFormState] =
+    useState<Record<FactorTypeEnum, FactorFormState>>(EMPTY_FACTORS_STATE);
 
   const [quoteInitialized, setQuoteInitialized] = useState(false);
   const [factorsInitialized, setFactorsInitialized] = useState(false);
@@ -89,39 +94,44 @@ export default function EditQuotePage() {
 
   useEffect(() => {
     if (!factorTypes || factorTypes.length === 0) return;
-    if (!apiFactors || apiFactors.length === 0) return;
+    const factorsFromApi = (quote as any)?.factors as
+      | Array<{
+          factorTypeId: number;
+          price: number | null;
+          thirdPartyId: number | null;
+        }>
+      | undefined;
+
+    if (!factorsFromApi || factorsFromApi.length === 0) return;
     if (factorsInitialized) return;
 
     const initial: Record<FactorTypeEnum, FactorFormState> = {
-      HYDRO_SANITARY_SYSTEM: { price: "", thirdPartyId: "" },
-      RAINWATER_DRAINAGE_SYSTEM: { price: "", thirdPartyId: "" },
-      PAVING: { price: "", thirdPartyId: "" },
-      ELECTRICAL_NETWORK: { price: "", thirdPartyId: "" },
-      EARTHWORKS: { price: "", thirdPartyId: "" },
+      ...EMPTY_FACTORS_STATE,
     };
 
     factorTypes.forEach((ft: any) => {
       const key = ft.factorTypeEnum as FactorTypeEnum;
 
-      const factorFromApi = apiFactors.find(
-        (f: any) => f.factorTypeId === ft.id,
+      const factorFromApi = factorsFromApi.find(
+        (f) => f.factorTypeId === ft.id,
       );
 
+      if (!factorFromApi) {
+        return;
+      }
+
       initial[key] = {
-        price:
-          factorFromApi && factorFromApi.price != null
-            ? Number(factorFromApi.price)
-            : "",
+        price: factorFromApi.price != null ? Number(factorFromApi.price) : "",
         thirdPartyId:
-          factorFromApi && factorFromApi.thirdParty?.id != null
-            ? Number(factorFromApi.thirdParty?.id)
+          factorFromApi.thirdPartyId != null
+            ? Number(factorFromApi.thirdPartyId)
             : "",
       };
     });
 
     setFactorFormState(initial);
     setFactorsInitialized(true);
-  }, [factorTypes, apiFactors, factorsInitialized]);
+  }, [factorTypes, quote, factorsInitialized]);
 
   const tractFields: Array<FieldDef<TractForm>> = useMemo(
     () => [

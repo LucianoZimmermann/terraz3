@@ -7,7 +7,11 @@ export type Quote = {
   factorList: Factor[];
   totalFactorsPrice: number;
   lotCount: number;
+  tractOwnerLotCount: number;
   pricePerLot: number;
+  totalProfit: number;
+  totalLiquidProfit: number;
+  markup: number;
   createDate: string;
 };
 

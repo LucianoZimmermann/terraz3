@@ -11,6 +11,7 @@ import ThirdPartiesPage from "../features/third_party/components/page";
 import QuotesPage from "../features/quotation/components/page";
 import CreateQuotesPage from "../features/quotation/components/createPage";
 import EditQuotePage from "../features/quotation/components/editPage";
+import ViewQuotePage from "../features/quotation/components/viewPage";
 
 export function makeRouter(shellProps: {
   mode: "dark" | "light";
@@ -66,6 +67,12 @@ export function makeRouter(shellProps: {
     component: EditQuotePage,
   });
 
+  const viewQuoteRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/view-quote/$quoteId",
+    component: ViewQuotePage,
+  });
+
   const routeTree = rootRoute.addChildren([
     indexRoute,
     tractOwnersRoute,
@@ -74,6 +81,7 @@ export function makeRouter(shellProps: {
     quotesRoute,
     createQuoteRoute,
     editQuoteRoute,
+    viewQuoteRoute,
   ]);
   return createRouter({ routeTree });
 }

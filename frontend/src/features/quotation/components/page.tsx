@@ -5,6 +5,7 @@ import {
 import IconBtn from "../../../common/atomic/atoms/buttons/IconButton";
 import { Stack } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useQuotes } from "../queries";
 import { Quote } from "../types";
@@ -19,6 +20,13 @@ export default function QuotesPage() {
   const createQuote = useCreateQuote();
   const setCreatedQuoteId = useCreatedQuote((s) => s.setCreatedQuoteId);
   const deleteQuote = useDeleteQuote();
+
+  function onView(id: number) {
+    navigate({
+      to: "/view-quote/$quoteId",
+      params: { quoteId: String(id) },
+    });
+  }
 
   function onEdit(id: number) {
     navigate({
@@ -86,6 +94,9 @@ export default function QuotesPage() {
       getRowId={(r) => r.id}
       actions={(row) => (
         <Stack direction="row" spacing={0.5}>
+          <IconBtn aria-label="Visualizar" onClick={() => onView(row.id)}>
+            <VisibilityIcon color="primary" fontSize="small" />
+          </IconBtn>
           <IconBtn aria-label="Editar" onClick={() => onEdit(row.id)}>
             <EditIcon color="primary" fontSize="small" />
           </IconBtn>
