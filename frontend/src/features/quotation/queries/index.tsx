@@ -18,5 +18,5 @@ export const useQuotes = (params?: QuoteListParams) =>
 export const useQuote = (id?: number) =>
   useQuery<Quote, AppError>({
     queryKey: keys.byId(id!),
-    queryFn: ({ signal }) => getQuote(id!),
+    queryFn: () => getQuote(id!),
   });

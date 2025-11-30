@@ -316,7 +316,7 @@ export default function TractsPage() {
         <DialogTitle>Excluir terreno?</DialogTitle>
         <DialogContent>
           <Typography variant="body2">
-            Confirme para excluir o terreno #{deleteId}.
+            Confirme para excluir o terreno.
           </Typography>
         </DialogContent>
         <DialogActions>

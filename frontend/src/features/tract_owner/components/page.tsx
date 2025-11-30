@@ -102,6 +102,7 @@ export default function TractOwnersPage() {
         />
       ),
     },
+    { key: "phone", label: "Telefone", type: "text" },
   ];
 
   return (
@@ -141,7 +142,10 @@ export default function TractOwnersPage() {
         onClose={() => setEditRow(null)}
         onSubmit={(val) =>
           updateOwner.mutate(
-            { id: val.id, body: { name: val.name, cpf: val.cpf } },
+            {
+              id: val.id,
+              body: { name: val.name, cpf: val.cpf, phone: val.phone },
+            },
             { onSuccess: () => setEditRow(null) },
           )
         }
@@ -152,7 +156,7 @@ export default function TractOwnersPage() {
       <EntityAddModal<TractOwner>
         open={openCreate}
         title="Novo Dono de Terreno"
-        initialData={{ name: "", cpf: "" } as Partial<TractOwner>}
+        initialData={{ name: "", cpf: "", phone: "" } as Partial<TractOwner>}
         fields={fields}
         onClose={() => setOpenCreate(false)}
         onSubmit={(val) =>

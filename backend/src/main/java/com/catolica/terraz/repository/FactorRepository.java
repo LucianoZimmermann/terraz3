@@ -2,7 +2,9 @@ package com.catolica.terraz.repository;
 
 import com.catolica.terraz.model.Factor;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,4 +21,8 @@ public interface FactorRepository extends JpaRepository<Factor, Long> {
     Factor findByQuoteIdAndFactorTypeId(Long quoteId, Long factorTypeId);
 
     List<Factor> findByQuoteId(Long quoteId);
+
+    @Modifying
+    @Query("UPDATE Factor f SET f.thirdParty = null WHERE f.thirdParty.id = :thirdPartyId")
+    void clearThirdPartyFromFactors(@Param("thirdPartyId") Long thirdPartyId);
 }

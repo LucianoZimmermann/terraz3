@@ -28,6 +28,6 @@ export const useDeleteThirdParty = () => {
   const qc = useQueryClient();
   return useMutation<void, AppError, number>({
     mutationFn: deleteThirdParty,
-    onSuccess: () => qc.invalidateQueries({ queryKey: keys.all }),
+    onSuccess: () => qc.removeQueries({ queryKey: keys.all }),
   });
 };

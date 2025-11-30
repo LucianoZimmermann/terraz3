@@ -35,4 +35,9 @@ public class ThirdPartyController {
     thirdPartyDTO.setId(id);
     return ResponseEntity.ok(thirdPartyService.updateThirdParty(thirdPartyDTO));
   }
+
+  @DeleteMapping("/{id}")
+  public void deleteThirdParty(@PathVariable Long id){
+    thirdPartyService.deleteThirdParty(id);
+  }
 }

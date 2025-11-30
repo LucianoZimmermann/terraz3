@@ -6,7 +6,6 @@ import { useFactorTypes } from "../../factor_type/queries";
 import { useThirdParties } from "../../third_party/queries";
 import { FACTOR_LABELS } from "../../factor_type/utils";
 import { FactorTypeEnum } from "../../factor_type/types";
-import type { Quote } from "../types";
 
 export default function ViewQuotePage() {
   const navigate = useNavigate();

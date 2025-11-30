@@ -4,6 +4,7 @@ import com.catolica.terraz.dto.FactorDTO;
 import com.catolica.terraz.model.Factor;
 import com.catolica.terraz.model.ThirdParty;
 import com.catolica.terraz.repository.FactorRepository;
+import com.catolica.terraz.repository.QuoteRepository;
 import com.catolica.terraz.repository.ThirdPartyRepository;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class FactorService {
 
   private final FactorRepository factorRepository;
+  private final QuoteRepository quoteRepository;
   private final ThirdPartyRepository thirdPartyRepository;
   private final ModelMapper modelMapper;
 
@@ -47,13 +49,6 @@ public class FactorService {
               }
               return factorDTO;
             })
-        .collect(Collectors.toList());
-  }
-
-  public List<FactorDTO> getFactorsByQuoteId(Long id) {
-    return factorRepository.findAll().stream()
-        .filter(factor -> factor.getQuote().getId().equals(id))
-        .map(factor -> modelMapper.map(factor, FactorDTO.class))
         .collect(Collectors.toList());
   }
 }

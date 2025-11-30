@@ -8,7 +8,9 @@ import com.catolica.terraz.enums.EntityType;
 import com.catolica.terraz.exception.ExceptionHelper;
 import com.catolica.terraz.model.FactorType;
 import com.catolica.terraz.model.ThirdParty;
+import com.catolica.terraz.repository.FactorRepository;
 import com.catolica.terraz.repository.FactorTypeRepository;
+import com.catolica.terraz.repository.QuoteRepository;
 import com.catolica.terraz.repository.ThirdPartyRepository;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ThirdPartyService {
   private final ThirdPartyRepository thirdPartyRepository;
+  private final FactorRepository factorRepository;
   private final FactorTypeRepository factorTypeRepository;
   private final ModelMapper modelMapper;
 
@@ -93,4 +96,14 @@ public class ThirdPartyService {
     return modelMapper.map(saved, ThirdPartyDTO.class);
   }
 
+  @Transactional
+  public void deleteThirdParty(Long id) {
+    if (!thirdPartyRepository.existsById(id)) {
+      throw ExceptionHelper.notFoundException(EntityType.THIRD_PARTY, id);
+    }
+
+    factorRepository.clearThirdPartyFromFactors(id);
+
+    thirdPartyRepository.deleteById(id);
+  }
 }
