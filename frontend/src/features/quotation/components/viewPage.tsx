@@ -9,7 +9,8 @@ import { FactorTypeEnum } from "../../factor_type/types";
 
 export default function ViewQuotePage() {
   const navigate = useNavigate();
-  const { quoteId } = useParams({ from: "/view-quote/$quoteId" });
+
+  const { quoteId } = useParams({ from: "/app/view-quote/$quoteId" });
   const numericQuoteId = Number(quoteId);
 
   const {

@@ -8,10 +8,15 @@ com\catolica\terraz\repository\TractOwnerRepository.class
 com\catolica\terraz\model\Tract$TractBuilder.class
 com\catolica\terraz\dto\quote\ResponseQuoteDTO$ResponseQuoteDTOBuilder.class
 com\catolica\terraz\repository\FactorTypeRepository.class
+com\catolica\terraz\controller\AuthController.class
 com\catolica\terraz\exception\ApiException.class
 com\catolica\terraz\model\FactorType$FactorTypeBuilder.class
+com\catolica\terraz\model\User$UserBuilder.class
+com\catolica\terraz\security\SecurityConfig.class
+com\catolica\terraz\service\UserService.class
 com\catolica\terraz\dto\tract\TractCreateDTO.class
 com\catolica\terraz\controller\advice\GlobalExceptionHandler.class
+com\catolica\terraz\dto\UserDTO.class
 com\catolica\terraz\dto\thirdparty\UpdateThirdPartyDTO.class
 com\catolica\terraz\dto\tract\TractAddressItem$TractAddressItemBuilder.class
 com\catolica\terraz\service\FactorService.class
@@ -20,6 +25,7 @@ com\catolica\terraz\service\FactorTypeService.class
 com\catolica\terraz\service\ThirdPartyService.class
 com\catolica\terraz\repository\FactorRepository.class
 com\catolica\terraz\service\QuoteService.class
+com\catolica\terraz\enums\Role.class
 com\catolica\terraz\dto\FactorDTO$FactorDTOBuilder.class
 com\catolica\terraz\dto\ThirdPartyDTO.class
 com\catolica\terraz\exception\ExceptionHelper.class
@@ -34,6 +40,7 @@ com\catolica\terraz\dto\thirdparty\CreateThirdPartyDTO.class
 com\catolica\terraz\dto\tract\TractAddressItem.class
 com\catolica\terraz\dto\quote\RequestQuoteDTO.class
 com\catolica\terraz\model\TractOwner.class
+com\catolica\terraz\repository\UserRepository.class
 com\catolica\terraz\controller\TractOwnerController.class
 com\catolica\terraz\dto\FactorTypeDTO$FactorTypeDTOBuilder.class
 com\catolica\terraz\dto\FactorTypeDTO.class
@@ -50,8 +57,10 @@ com\catolica\terraz\exception\tractowner\TractOwnerDeletionConflictException.cla
 com\catolica\terraz\controller\FactorTypesController.class
 com\catolica\terraz\TerrazApplication.class
 com\catolica\terraz\dto\quote\UpdateQuoteDTO.class
+com\catolica\terraz\security\CustomOAuth2UserService.class
 com\catolica\terraz\model\Factor.class
 com\catolica\terraz\controller\FactorController.class
+com\catolica\terraz\controller\UserController.class
 com\catolica\terraz\enums\FactorTypeEnum.class
 com\catolica\terraz\model\TractOwner$TractOwnerBuilder.class
 com\catolica\terraz\dto\tractowner\TractOwnerDeletionConflictDetails.class
@@ -66,4 +75,5 @@ com\catolica\terraz\service\TractService.class
 com\catolica\terraz\config\cors\CorsConfig$1.class
 com\catolica\terraz\model\Factor$FactorBuilder.class
 com\catolica\terraz\dto\tract\TractCreateDTO$TractCreateDTOBuilder.class
+com\catolica\terraz\model\User.class
 com\catolica\terraz\dto\TractDTO.class

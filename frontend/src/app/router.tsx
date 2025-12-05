@@ -12,12 +12,25 @@ import QuotesPage from "../features/quotation/components/page";
 import CreateQuotesPage from "../features/quotation/components/createPage";
 import EditQuotePage from "../features/quotation/components/editPage";
 import ViewQuotePage from "../features/quotation/components/viewPage";
+import LoginPage from "../features/login";
 
 export function makeRouter(shellProps: {
   mode: "dark" | "light";
   onToggleTheme: () => void;
 }) {
   const rootRoute = createRootRoute({
+    component: () => <Outlet />,
+  });
+
+  const loginRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/",
+    component: LoginPage,
+  });
+
+  const appRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    id: "app",
     component: () => (
       <Shell {...shellProps}>
         <Outlet />
@@ -25,64 +38,61 @@ export function makeRouter(shellProps: {
     ),
   });
 
-  const indexRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/",
-    component: QuotesPage,
-  });
-
   const tractOwnersRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/tract-owners",
+    getParentRoute: () => appRoute,
+    path: "tract-owners",
     component: TractOwnersPage,
   });
 
   const tractRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/tracts",
+    getParentRoute: () => appRoute,
+    path: "tracts",
     component: TractsPage,
   });
 
   const thirdPartyRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/third-parties",
+    getParentRoute: () => appRoute,
+    path: "third-parties",
     component: ThirdPartiesPage,
   });
 
   const quotesRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/quotes",
+    getParentRoute: () => appRoute,
+    path: "quotes",
     component: QuotesPage,
   });
 
   const createQuoteRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/create-quote",
+    getParentRoute: () => appRoute,
+    path: "create-quote",
     component: CreateQuotesPage,
   });
 
   const editQuoteRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/edit-quote/$quoteId",
+    getParentRoute: () => appRoute,
+    path: "edit-quote/$quoteId",
     component: EditQuotePage,
   });
 
   const viewQuoteRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/view-quote/$quoteId",
+    getParentRoute: () => appRoute,
+    path: "view-quote/$quoteId",
     component: ViewQuotePage,
   });
 
   const routeTree = rootRoute.addChildren([
-    indexRoute,
-    tractOwnersRoute,
-    tractRoute,
-    thirdPartyRoute,
-    quotesRoute,
-    createQuoteRoute,
-    editQuoteRoute,
-    viewQuoteRoute,
+    loginRoute,
+    appRoute.addChildren([
+      tractOwnersRoute,
+      tractRoute,
+      thirdPartyRoute,
+      quotesRoute,
+      createQuoteRoute,
+      editQuoteRoute,
+      viewQuoteRoute,
+    ]),
   ]);
+
   return createRouter({ routeTree });
 }
 

@@ -49,7 +49,7 @@ const EMPTY_FACTORS_STATE: Record<FactorTypeEnum, FactorFormState> = {
 
 export default function EditQuotePage() {
   const navigate = useNavigate();
-  const { quoteId } = useParams({ from: "/edit-quote/$quoteId" });
+  const { quoteId } = useParams({ from: "/app/edit-quote/$quoteId" });
   const numericQuoteId = Number(quoteId);
 
   const { data: tracts = [] } = useTracts();

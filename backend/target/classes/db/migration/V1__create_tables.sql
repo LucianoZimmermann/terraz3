@@ -53,3 +53,11 @@ CREATE TABLE IF NOT EXISTS factors (
     third_party_id INT REFERENCES third_parties(id),
     price NUMERIC NOT NULL
 );
+
+CREATE TABLE  IF NOT EXISTS users (
+  id           SERIAL PRIMARY KEY,
+  email        VARCHAR(255) UNIQUE NOT NULL,
+  name         VARCHAR(255),
+  role         VARCHAR(50) NOT NULL,
+  enabled      BOOLEAN NOT NULL DEFAULT TRUE
+);

@@ -16,7 +16,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import LocationCityIcon from "@mui/icons-material/LocationCity";
 import HandshakeIcon from "@mui/icons-material/Handshake";
 import LandscapeIcon from "@mui/icons-material/Landscape";
 import PersonIcon from "@mui/icons-material/Person";
